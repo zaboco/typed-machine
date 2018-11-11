@@ -26,14 +26,17 @@ export class ToggleMachine extends React.Component<ToggleFsm, ToggleFsm> {
   };
 
   render() {
-    const current = this.state.current;
-    const node = this.state.graph[current] as FsmNode<ToggleState, ToggleActionMap[typeof current]>;
-    return node.render((action: ToggleActionMap[typeof current]) => {
-      this.setState({
-        current: node.transition(action),
-      });
+    return renderCurrent(this.state, current => {
+      this.setState({ current });
     });
   }
+}
+
+function renderCurrent(fsm: ToggleFsm, onStateChange: (s: ToggleState) => void) {
+  const node = fsm.graph[fsm.current] as FsmNode<ToggleState, ToggleActionMap[typeof fsm.current]>;
+  return node.render(action => {
+    onStateChange(node.transition(action));
+  });
 }
 
 type ToggleState = 'Enabled' | 'Disabled';
