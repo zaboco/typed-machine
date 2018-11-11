@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Demo } from './fsm';
+import { ToggleContainer, toggleMachine } from './fsm-class';
 
 export class App extends React.Component {
   render() {
-    return <Demo />;
+    return <ToggleContainer machine={toggleMachine} />;
   }
 }

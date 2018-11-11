@@ -1,32 +1,34 @@
 import * as React from 'react';
 
-type Action<T extends string> = { type: T };
-// type Dispatch<T extends string, P> = (action: Action<T, P>) => void;
+type Action<T extends string = string, P = never> = { type: T; payload?: P };
+type Dispatch<A extends Action> = (action: A) => void;
 
-// function action<T extends string, P>(type: T, payload?: P): Action<T, P> {
-//   return { type, payload };
-// }
+function action<T extends string, P>(type: T, payload?: P): Action<T, P> {
+  return { type, payload };
+}
 
 export interface Fsm<S extends string, NW extends FsmNodeWrapper<S, any, any>> {
   current: S;
   graph: Record<S, NW>;
 }
 
-export interface FsmNode<F, A> {
+export interface FsmNode<F, A extends Action> {
   transition: (a: A, f: F) => F;
-  render: () => JSX.Element;
+  render: (dispatch: Dispatch<A>) => JSX.Element;
 }
-type FsmNodeWrapper<T extends string, F, A> = { tag: T; node: FsmNode<F, A> };
+type FsmNodeWrapper<T extends string, F, A extends Action> = { tag: T; node: FsmNode<F, A> };
 
 export interface FsmContainerProps<S extends string, NW extends FsmNodeWrapper<S, any, any>> {
   fsm: Fsm<S, NW>;
 }
 
-function getCurrentNode<S extends string, F, A, NW extends FsmNodeWrapper<S, F, A>>(
+function getCurrentNode<S extends string, F, A extends Action, NW extends FsmNodeWrapper<S, F, A>>(
   fsm: Fsm<S, NW>,
 ): FsmNode<F, A> {
   return fsm.graph[fsm.current].node;
 }
+
+function transition();
 
 export class FsmContainer<
   S extends string,
