@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Fsm, Machine } from './Machine';
+import { Fsm, Machine, Graph } from './Machine';
 import { Action, action } from './Actions';
 
-type ToggleFsm = Fsm<ToggleState, ToggleActionMap>;
+type ToggleGraph = Graph<ToggleState, ToggleActionMap>;
 
 type ToggleState = 'Enabled' | 'Disabled';
 
@@ -11,7 +11,7 @@ type ToggleActionMap = {
   Disabled: Action<'ENABLE'>;
 };
 
-const toggleGraph: ToggleFsm['graph'] = {
+const toggleGraph: ToggleGraph = {
   Enabled: {
     render: dispatch => (
       <div>

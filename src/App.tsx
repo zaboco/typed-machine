@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ToggleMachine } from './ToggleMachine';
+import { EditiabbleInput } from './EditableInput';
 
 export class App extends React.Component {
   render() {
-    return <ToggleMachine />;
+    return <EditiabbleInput />;
   }
 }

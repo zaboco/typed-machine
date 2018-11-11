@@ -27,12 +27,12 @@ function renderCurrent<S extends string, AM extends ActionMap<S>>(
   });
 }
 
-export interface Fsm<S extends string, AM extends ActionMap<S>> {
+interface Fsm<S extends string, AM extends ActionMap<S>> {
   current: S;
   graph: Graph<S, AM>;
 }
 
-type Graph<S extends string, AM extends ActionMap<S>> = { [s in S]: FsmNode<S, AM[s]> };
+export type Graph<S extends string, AM extends ActionMap<S>> = { [s in S]: FsmNode<S, AM[s]> };
 
 type ActionMap<S extends string> = Record<S, Action>;
 
