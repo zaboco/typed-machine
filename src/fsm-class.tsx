@@ -1,25 +1,15 @@
 import * as React from 'react';
 
 type Action<T extends string = string, P = never> = { type: T; payload?: P };
-type Dispatch<T extends string, P = never> = (action: Action<T, P>) => void;
+type Dispatch<A extends Action> = (action: A) => void;
 
 function action<T extends string, P>(type: T, payload?: P): Action<T, P> {
   return { type, payload };
 }
 
-export interface FsmNode<F, A> {
+export interface FsmNode<F, A extends Action> {
   transition: (a: A, f: F) => F;
-  render: () => JSX.Element;
-}
-
-export interface ToggleContainerProps {
-  machine: ToggleMachine;
-}
-
-export class ToggleContainer extends React.Component<ToggleContainerProps> {
-  render() {
-    return this.props.machine.render();
-  }
+  render: (d: Dispatch<A>) => JSX.Element;
 }
 
 //--------------------------------------
@@ -29,19 +19,36 @@ export interface ToggleFsm {
   graph: ToggleGraph;
 }
 
-export class ToggleMachine {
-  private current: ToggleState;
-  private graph: ToggleGraph;
-
-  constructor(current: ToggleState, graph: ToggleGraph) {
-    this.current = current;
-    this.graph = graph;
-  }
+export class ToggleMachine extends React.Component<ToggleFsm, ToggleFsm> {
+  state: ToggleFsm = {
+    current: this.props.current,
+    graph: this.props.graph,
+  };
 
   render() {
-    const node = this.graph[this.current];
-    return node.render();
+    if (this.state.current === 'Enabled') {
+      const node = this.state.graph[this.state.current];
+      return node.render(action => this.dispatchEnabled(node, action));
+    }
+    const node = this.state.graph[this.state.current];
+    return node.render(action => this.dispatchDisabled(node, action));
   }
+
+  private dispatchEnabled = (node: ToggleGraph['Enabled'], action: EnabledAction) => {
+    const { current, graph } = node.transition(action, {
+      current: this.state.current,
+      graph: this.state.graph,
+    });
+    this.setState({ current, graph });
+  };
+
+  private dispatchDisabled = (node: ToggleGraph['Disabled'], action: DisabledAction) => {
+    const { current, graph } = node.transition(action, {
+      current: this.state.current,
+      graph: this.state.graph,
+    });
+    this.setState({ current, graph });
+  };
 }
 
 type ToggleActionMap = {
@@ -53,12 +60,20 @@ type ToggleGraph = { [s in ToggleState]: FsmNode<ToggleFsm, ToggleActionMap[s]> 
 
 type ToggleState = 'Enabled' | 'Disabled';
 
+type ToggleActionWrapper =
+  | { tag: 'Enabled'; action: EnabledAction }
+  | { tag: 'Disabled'; action: DisabledAction };
 type EnabledAction = Action<'DISABLE'> | Action<'CLOSE'>;
 type DisabledAction = Action<'ENABLE'>;
 
-export const toggleMachine = new ToggleMachine('Disabled', {
+export const toggleGraph: ToggleGraph = {
   Enabled: {
-    render: () => <div>Enabled</div>,
+    render: dispatch => (
+      <div>
+        Enabled
+        <button onClick={() => dispatch(action('DISABLE'))}>Disable</button>
+      </div>
+    ),
     transition: (action, fsm) => {
       switch (action.type) {
         case 'DISABLE':
@@ -69,7 +84,12 @@ export const toggleMachine = new ToggleMachine('Disabled', {
     },
   },
   Disabled: {
-    render: () => <div>Disabled</div>,
+    render: dispatch => (
+      <div>
+        Disabled
+        <button onClick={() => dispatch(action('ENABLE'))}>Enable</button>
+      </div>
+    ),
     transition: (action, fsm) => {
       switch (action.type) {
         case 'ENABLE':
@@ -77,4 +97,4 @@ export const toggleMachine = new ToggleMachine('Disabled', {
       }
     },
   },
-});
+};

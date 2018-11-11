@@ -28,8 +28,6 @@ function getCurrentNode<S extends string, F, A extends Action, NW extends FsmNod
   return fsm.graph[fsm.current].node;
 }
 
-function transition();
-
 export class FsmContainer<
   S extends string,
   NW extends FsmNodeWrapper<S, any, any>
