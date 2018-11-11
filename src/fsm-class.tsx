@@ -26,29 +26,17 @@ export class ToggleMachine extends React.Component<ToggleFsm, ToggleFsm> {
   };
 
   render() {
-    if (this.state.current === 'Enabled') {
-      const node = this.state.graph[this.state.current];
-      return node.render(action => this.dispatchEnabled(node, action));
-    }
-    const node = this.state.graph[this.state.current];
-    return node.render(action => this.dispatchDisabled(node, action));
+    const current = this.state.current;
+    const node = this.state.graph[current] as FsmNode<ToggleFsm, ToggleActionMap[typeof current]>;
+    return node.render((action: ToggleActionMap[typeof current]) => {
+      this.setState(
+        node.transition(action, {
+          current: this.state.current,
+          graph: this.state.graph,
+        }),
+      );
+    });
   }
-
-  private dispatchEnabled = (node: ToggleGraph['Enabled'], action: EnabledAction) => {
-    const { current, graph } = node.transition(action, {
-      current: this.state.current,
-      graph: this.state.graph,
-    });
-    this.setState({ current, graph });
-  };
-
-  private dispatchDisabled = (node: ToggleGraph['Disabled'], action: DisabledAction) => {
-    const { current, graph } = node.transition(action, {
-      current: this.state.current,
-      graph: this.state.graph,
-    });
-    this.setState({ current, graph });
-  };
 }
 
 type ToggleActionMap = {
@@ -60,9 +48,6 @@ type ToggleGraph = { [s in ToggleState]: FsmNode<ToggleFsm, ToggleActionMap[s]> 
 
 type ToggleState = 'Enabled' | 'Disabled';
 
-type ToggleActionWrapper =
-  | { tag: 'Enabled'; action: EnabledAction }
-  | { tag: 'Disabled'; action: DisabledAction };
 type EnabledAction = Action<'DISABLE'> | Action<'CLOSE'>;
 type DisabledAction = Action<'ENABLE'>;
 
