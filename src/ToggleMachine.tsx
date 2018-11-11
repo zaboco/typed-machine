@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Fsm, Machine, Graph } from './Machine';
+import { Machine, Graph } from './Machine';
 import { Action, action } from './Actions';
 
 type ToggleGraph = Graph<ToggleState, ToggleActionMap>;
@@ -13,6 +13,7 @@ type ToggleActionMap = {
 
 const toggleGraph: ToggleGraph = {
   Enabled: {
+    model: null,
     render: dispatch => (
       <div>
         Enabled
@@ -22,13 +23,14 @@ const toggleGraph: ToggleGraph = {
     transition: action => {
       switch (action.type) {
         case 'DISABLE':
-          return 'Disabled';
+          return ['Disabled', null];
         case 'CLOSE':
-          return 'Disabled';
+          return ['Disabled', null];
       }
     },
   },
   Disabled: {
+    model: null,
     render: dispatch => (
       <div>
         Disabled
@@ -38,7 +40,7 @@ const toggleGraph: ToggleGraph = {
     transition: action => {
       switch (action.type) {
         case 'ENABLE':
-          return 'Enabled';
+          return ['Enabled', null];
       }
     },
   },
