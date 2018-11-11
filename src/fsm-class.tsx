@@ -7,8 +7,8 @@ function action<T extends string, P>(type: T, payload?: P): Action<T, P> {
   return { type, payload };
 }
 
-export interface FsmNode<F, A extends Action> {
-  transition: (a: A, f: F) => F;
+export interface FsmNode<S extends string, A extends Action> {
+  transition: (a: A) => S;
   render: (d: Dispatch<A>) => JSX.Element;
 }
 
@@ -27,29 +27,23 @@ export class ToggleMachine extends React.Component<ToggleFsm, ToggleFsm> {
 
   render() {
     const current = this.state.current;
-    const node = this.state.graph[current] as FsmNode<ToggleFsm, ToggleActionMap[typeof current]>;
+    const node = this.state.graph[current] as FsmNode<ToggleState, ToggleActionMap[typeof current]>;
     return node.render((action: ToggleActionMap[typeof current]) => {
-      this.setState(
-        node.transition(action, {
-          current: this.state.current,
-          graph: this.state.graph,
-        }),
-      );
+      this.setState({
+        current: node.transition(action),
+      });
     });
   }
 }
 
-type ToggleActionMap = {
-  Enabled: EnabledAction;
-  Disabled: DisabledAction;
-};
-
-type ToggleGraph = { [s in ToggleState]: FsmNode<ToggleFsm, ToggleActionMap[s]> };
-
 type ToggleState = 'Enabled' | 'Disabled';
 
-type EnabledAction = Action<'DISABLE'> | Action<'CLOSE'>;
-type DisabledAction = Action<'ENABLE'>;
+type ToggleActionMap = {
+  Enabled: Action<'DISABLE'> | Action<'CLOSE'>;
+  Disabled: Action<'ENABLE'>;
+};
+
+type ToggleGraph = { [s in ToggleState]: FsmNode<ToggleState, ToggleActionMap[s]> };
 
 export const toggleGraph: ToggleGraph = {
   Enabled: {
@@ -59,12 +53,12 @@ export const toggleGraph: ToggleGraph = {
         <button onClick={() => dispatch(action('DISABLE'))}>Disable</button>
       </div>
     ),
-    transition: (action, fsm) => {
+    transition: action => {
       switch (action.type) {
         case 'DISABLE':
-          return { ...fsm, current: 'Disabled' };
+          return 'Disabled';
         case 'CLOSE':
-          return { ...fsm, current: 'Disabled' };
+          return 'Disabled';
       }
     },
   },
@@ -75,10 +69,10 @@ export const toggleGraph: ToggleGraph = {
         <button onClick={() => dispatch(action('ENABLE'))}>Enable</button>
       </div>
     ),
-    transition: (action, fsm) => {
+    transition: action => {
       switch (action.type) {
         case 'ENABLE':
-          return { ...fsm, current: 'Enabled' };
+          return 'Enabled';
       }
     },
   },
