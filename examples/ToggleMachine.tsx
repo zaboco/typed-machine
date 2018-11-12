@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Machine, Graph } from './Machine';
-import { Action, action } from './Actions';
+import { Machine, Graph } from '../src/Machine';
+import { Action, action } from '../src/Actions';
 
 type ToggleGraph = Graph<ToggleState, ToggleActionMap>;
 
