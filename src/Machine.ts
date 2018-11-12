@@ -30,7 +30,7 @@ function renderCurrent<S extends string, MT extends MachineTemplate<S>>(
   fsm: Fsm<S, MT>,
   onStateChange: ([s, m]: MT[S]['stateModel']) => void,
 ) {
-  const node = fsm.graph[fsm.current] as FsmNode<S, typeof fsm.current, MT>;
+  const node = fsm.graph[fsm.current];
 
   return node.render(action => {
     onStateChange(node.transition(action, node.model));
@@ -42,30 +42,29 @@ interface Fsm<S extends string, MT extends MachineTemplate<S>> {
   graph: Graph<S, MT>;
 }
 
-export type Graph<S extends string, MT extends MachineTemplate<S>> = {
-  [s in S]: FsmNode<S, s, MT>
-};
-
 export type MachineTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
-type NodeTemplate<S extends string> = {
+type NodeTemplate<S extends string = string> = {
   action: Action;
   stateModel: [S, Model];
 };
 
+export type Graph<S extends string, MT extends MachineTemplate<S>> = {
+  [s in S]: FsmNode<S, MT[s], MT[S]>
+};
+
+interface FsmNode<S extends string, CNT extends NodeTemplate<S>, NT extends NodeTemplate<S>> {
+  model: GetModel<CNT>;
+  transition: (a: GetAction<CNT>, m: GetModel<CNT>) => NT['stateModel'];
+  render: (d: Dispatch<GetAction<CNT>>, m: GetModel<CNT>) => JSX.Element;
+}
+
+type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
+type GetAction<NT extends NodeTemplate> = Assert<Action, NT['action']>;
+
+// type First<T extends [unknown, unknown]> = T[0];
+type Second<T extends [unknown, unknown]> = T[1];
+
 type Model = Object | string | number | boolean; // | undefined
 
 export type Assert<T, O extends T> = O;
-
-interface FsmNode<S extends string, CS extends S, MT extends MachineTemplate<S>> {
-  model: Second<MT[CS]['stateModel']>;
-  transition: (a: MT[CS]['action'], m: Second<MT[CS]['stateModel']>) => MT[S]['stateModel'];
-  render: (d: Dispatch<MT[CS]['action']>, m: Second<MT[CS]['stateModel']>) => JSX.Element;
-}
-
-type First<T extends [unknown, unknown]> = T[0];
-type Second<T extends [unknown, unknown]> = T[1];
-
-type Tagged = [string, number];
-const first: First<Tagged> = '1';
-const second: Second<Tagged> = 1;
