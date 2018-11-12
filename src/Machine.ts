@@ -82,6 +82,6 @@ type GetAction<NT extends DerivedNodeTemplate> = Assert<Action, NT['action']>;
 // type First<T extends [unknown, unknown]> = T[0];
 type Second<T extends [unknown, unknown]> = T[1];
 
-type Model = Object | string | number | boolean; // | undefined
+type Model = Object | string | number | boolean | null; // | undefined
 
 export type Assert<T, O extends T> = O;

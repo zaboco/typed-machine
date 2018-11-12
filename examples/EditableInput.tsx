@@ -5,7 +5,6 @@ import { Action, action, actionP, ActionP } from '../src/Actions';
 type EditiabbleFsm = Fsm<EditiabbleState, EditableMachineTemplate>;
 
 type EditiabbleState = 'Readonly' | 'Editing';
-
 type EditableMachineTemplate = Assert<
   MachineTemplate<EditiabbleState>,
   {
