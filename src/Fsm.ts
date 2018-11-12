@@ -1,32 +1,9 @@
-import * as React from 'react';
-import { Action, Dispatch } from './Actions';
+import { Action, Dispatch } from './types/Actions';
+import { Assert, Second } from './types/helpers';
 
-export class Machine<S extends string, MT extends MachineTemplate<S>> extends React.Component<
-  Fsm<S, MT>,
-  Fsm<S, MT>
-> {
-  state = {
-    current: this.props.current,
-    graph: this.props.graph,
-  };
+export { Assert };
 
-  render() {
-    return renderCurrent(this.state, ([current, model]) => {
-      this.setState(({ graph }) => {
-        return {
-          current,
-          graph: Object.assign({}, graph, {
-            [current]: Object.assign({}, graph[current], {
-              model,
-            }),
-          }),
-        };
-      });
-    });
-  }
-}
-
-function renderCurrent<S extends string, MT extends MachineTemplate<S>>(
+export function renderCurrent<S extends string, MT extends MachineTemplate<S>>(
   fsm: Fsm<S, MT>,
   onStateChange: ([s, m]: [S, Model]) => void,
 ) {
@@ -79,9 +56,4 @@ interface FsmNode<CNT extends DerivedNodeTemplate, NT extends DerivedNodeTemplat
 type GetModel<NT extends DerivedNodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
 type GetAction<NT extends DerivedNodeTemplate> = Assert<Action, NT['action']>;
 
-// type First<T extends [unknown, unknown]> = T[0];
-type Second<T extends [unknown, unknown]> = T[1];
-
 type Model = Object | string | number | boolean | null; // | undefined
-
-export type Assert<T, O extends T> = O;

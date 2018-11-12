@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { Machine, Assert, MachineTemplate, Fsm } from '../src/Machine';
-import { Action, action, actionP, ActionP } from '../src/Actions';
+import { Machine } from '../src/react/Machine';
+import { Action, action, actionP, ActionP } from '../src/types/Actions';
+import { Assert } from '../src/types/helpers';
+import { Fsm, MachineTemplate } from '../src/Fsm';
 
 type EditiabbleFsm = Fsm<EditiabbleState, EditableMachineTemplate>;
 

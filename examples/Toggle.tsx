@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { Machine, Fsm, Assert, MachineTemplate } from '../src/Machine';
-import { Action, action } from '../src/Actions';
+import { Machine } from '../src/react/Machine';
+import { Action, action } from '../src/types/Actions';
+import { Assert } from '../src/types/helpers';
+import { Fsm, MachineTemplate } from '../src/Fsm';
 
 type ToggleFsm = Fsm<ToggleState, ToggleMachineTemplate>;
 
