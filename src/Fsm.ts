@@ -1,10 +1,8 @@
 import { Action, Dispatch } from './types/Actions';
 import { Assert, Second } from './types/helpers';
 
-export { Assert };
-
-export function renderCurrent<S extends string, MT extends MachineTemplate<S>>(
-  fsm: Fsm<S, MT>,
+export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
+  fsm: Fsm<S, GT>,
   onStateChange: ([s, m]: [S, Model]) => void,
 ) {
   const node = fsm.graph[fsm.current];
@@ -14,46 +12,46 @@ export function renderCurrent<S extends string, MT extends MachineTemplate<S>>(
   }, node.model);
 }
 
-export interface Fsm<S extends string, MT extends MachineTemplate<S>> {
+// === Fsm ===
+export type Fsm<S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = {
   current: S;
-  graph: Graph<S, MT>;
-}
+  graph: Graph<S, GT>;
+};
 
-export type MachineTemplate<S extends string> = {
+type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: FsmNode<GT[s], GT[S]> };
+
+type FsmNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
+  model: GetModel<CNT>;
+  transition: (a: GetAction<CNT>, m: GetModel<CNT>) => NT['stateModel'];
+  render: (d: Dispatch<GetAction<CNT>>, m: GetModel<CNT>) => JSX.Element;
+};
+
+// === Templates ===
+export type DefineTemplate<S extends string, GT extends TemplateDefinition<S>> = Assert<
+  GraphTemplate<S>,
+  {
+    [s in S]: {
+      action: GT[s]['action'];
+      stateModel: [s, GT[s]['model']];
+    }
+  }
+>;
+
+type TemplateDefinition<S extends string> = {
   [s in S]: {
     action: Action;
     model: Model;
   }
 };
 
-type Graph<S extends string, MT extends MachineTemplate<S>> = {
-  [s in S]: FsmNode<Derive<S, MT>[s], Derive<S, MT>[S]>
-};
+export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
-type DerivedMachineTemplate<S extends string> = { [s in S]: DerivedNodeTemplate<s> };
-
-type DerivedNodeTemplate<S extends string = string> = {
+type NodeTemplate<S extends string = string> = {
   action: Action;
   stateModel: [S, Model];
 };
 
-type Derive<S extends string, MT extends MachineTemplate<S> = MachineTemplate<S>> = Assert<
-  DerivedMachineTemplate<S>,
-  {
-    [s in S]: {
-      action: MT[s]['action'];
-      stateModel: [s, MT[s]['model']];
-    }
-  }
->;
-
-interface FsmNode<CNT extends DerivedNodeTemplate, NT extends DerivedNodeTemplate> {
-  model: GetModel<CNT>;
-  transition: (a: GetAction<CNT>, m: GetModel<CNT>) => NT['stateModel'];
-  render: (d: Dispatch<GetAction<CNT>>, m: GetModel<CNT>) => JSX.Element;
-}
-
-type GetModel<NT extends DerivedNodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
-type GetAction<NT extends DerivedNodeTemplate> = Assert<Action, NT['action']>;
+type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
+type GetAction<NT extends NodeTemplate> = Assert<Action, NT['action']>;
 
 type Model = Object | string | number | boolean | null; // | undefined

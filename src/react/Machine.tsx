@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Fsm, MachineTemplate, renderCurrent } from '../Fsm';
+import { Fsm, renderCurrent, GraphTemplate } from '../Fsm';
 
-export class Machine<S extends string, MT extends MachineTemplate<S>> extends React.Component<
-  Fsm<S, MT>,
-  Fsm<S, MT>
+export class Machine<S extends string, GT extends GraphTemplate<S>> extends React.Component<
+  Fsm<S, GT>,
+  Fsm<S, GT>
 > {
   state = {
     current: this.props.current,

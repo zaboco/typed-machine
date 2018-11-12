@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
 import { Action, action, actionP, ActionP } from '../src/types/Actions';
-import { Assert } from '../src/types/helpers';
-import { Fsm, MachineTemplate } from '../src/Fsm';
+import { Fsm, DefineTemplate } from '../src/Fsm';
 
-type EditiabbleFsm = Fsm<EditiabbleState, EditableMachineTemplate>;
+type EditiableFsm = Fsm<EditiableState, EditableTemplate>;
 
-type EditiabbleState = 'Readonly' | 'Editing';
-type EditableMachineTemplate = Assert<
-  MachineTemplate<EditiabbleState>,
+type EditiableState = 'Readonly' | 'Editing';
+
+type EditableTemplate = DefineTemplate<
+  EditiableState,
   {
     Readonly: {
       action: Action<'START_EDITING'>;
@@ -21,7 +21,7 @@ type EditableMachineTemplate = Assert<
   }
 >;
 
-const makeEditiabbleFsm = (initialValue: string): EditiabbleFsm => ({
+const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
   current: 'Readonly',
   graph: {
     Readonly: {
