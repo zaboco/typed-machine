@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { Action, Dispatch } from './Actions';
 
-export class Machine<
-  S extends string,
-  AM extends ActionMap<S>,
-  MM extends ModelMap<S> = ModelMap<S>
-> extends React.Component<Fsm<S, AM, MM>, Fsm<S, AM, MM>> {
+export class Machine<S extends string, MT extends MachineTemplate<S>> extends React.Component<
+  Fsm<S, MT>,
+  Fsm<S, MT>
+> {
   state = {
     current: this.props.current,
     graph: this.props.graph,
@@ -27,40 +26,46 @@ export class Machine<
   }
 }
 
-function renderCurrent<S extends string, AM extends ActionMap<S>, MM extends ModelMap<S>>(
-  fsm: Fsm<S, AM, MM>,
-  onStateChange: ([s, m]: [S, MM[S]]) => void,
+function renderCurrent<S extends string, MT extends MachineTemplate<S>>(
+  fsm: Fsm<S, MT>,
+  onStateChange: ([s, m]: MT[S]['stateModel']) => void,
 ) {
-  const node = fsm.graph[fsm.current] as FsmNode<
-    S,
-    AM[typeof fsm.current],
-    MM[typeof fsm.current],
-    MM[S]
-  >;
+  const node = fsm.graph[fsm.current] as FsmNode<S, typeof fsm.current, MT>;
 
   return node.render(action => {
     onStateChange(node.transition(action, node.model));
   }, node.model);
 }
 
-interface Fsm<S extends string, AM extends ActionMap<S>, MM extends ModelMap<S> = ModelMap<S>> {
+interface Fsm<S extends string, MT extends MachineTemplate<S>> {
   current: S;
-  graph: Graph<S, AM, MM>;
+  graph: Graph<S, MT>;
 }
 
-export type Graph<
-  S extends string,
-  AM extends ActionMap<S>,
-  MM extends ModelMap<S> = ModelMap<S>
-> = { [s in S]: FsmNode<S, AM[s], MM[s], MM[S]> };
+export type Graph<S extends string, MT extends MachineTemplate<S>> = {
+  [s in S]: FsmNode<S, s, MT>
+};
 
-type ActionMap<S extends string> = Record<S, Action>;
-type ModelMap<S extends string> = Record<S, Object | string | number | boolean | null>;
+export type MachineTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
-// type DefaultModelMap<S extends string> = Record<S, null>
+type NodeTemplate<S extends string> = {
+  action: Action;
+  stateModel: [S, Model];
+};
 
-interface FsmNode<S extends string, A extends Action, M, OM> {
-  model: M;
-  transition: (a: A, m: M) => [S, OM];
-  render: (d: Dispatch<A>, m: M) => JSX.Element;
+type Model = Object | string | number | boolean; // | undefined
+
+export type Assert<T, O extends T> = O;
+
+interface FsmNode<S extends string, CS extends S, MT extends MachineTemplate<S>> {
+  model: Second<MT[CS]['stateModel']>;
+  transition: (a: MT[CS]['action'], m: Second<MT[CS]['stateModel']>) => MT[S]['stateModel'];
+  render: (d: Dispatch<MT[CS]['action']>, m: Second<MT[CS]['stateModel']>) => JSX.Element;
 }
+
+type First<T extends [unknown, unknown]> = T[0];
+type Second<T extends [unknown, unknown]> = T[1];
+
+type Tagged = [string, number];
+const first: First<Tagged> = '1';
+const second: Second<Tagged> = 1;

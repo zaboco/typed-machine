@@ -1,20 +1,26 @@
 import * as React from 'react';
-import { Machine, Graph } from './Machine';
+import { Machine, Graph, Assert, MachineTemplate } from './Machine';
 import { Action, action, actionP, ActionP } from './Actions';
 
-type EditiabbleGraph = Graph<EditiabbleState, EditiabbleActionMap, EditiabbleModelMap>;
+type EditiabbleGraph = Graph<EditiabbleState, EditableMachineTemplate>;
 
 type EditiabbleState = 'Readonly' | 'Editing';
 
-type EditiabbleActionMap = {
-  Readonly: Action<'START_EDITING'>;
-  Editing: ActionP<'CHANGE_TEXT', string> | Action<'SAVE'> | Action<'DISCARD'>;
-};
-
-type EditiabbleModelMap = {
-  Readonly: string;
-  Editing: { previous: string; draft: string };
-};
+type EditableMachineTemplate = Assert<
+  MachineTemplate<EditiabbleState>,
+  {
+    Readonly: {
+      action: Action<'START_EDITING'>;
+      model: string;
+      stateModel: ['Readonly', string];
+    };
+    Editing: {
+      action: ActionP<'CHANGE_TEXT', string> | Action<'SAVE'> | Action<'DISCARD'>;
+      model: { previous: string; draft: string };
+      stateModel: ['Editing', { previous: string; draft: string }];
+    };
+  }
+>;
 
 const makeEditiabbleGraph = (initialValue: string): EditiabbleGraph => ({
   Readonly: {
