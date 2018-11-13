@@ -1,4 +1,3 @@
-import { Action, Dispatch } from './types/Actions';
 import { Assert, Second } from './types/helpers';
 
 export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
@@ -39,7 +38,7 @@ export type DefineTemplate<S extends string, GT extends TemplateDefinition<S>> =
 
 type TemplateDefinition<S extends string> = {
   [s in S]: {
-    action: Action;
+    action: GenericAction;
     model: Model;
   }
 };
@@ -47,11 +46,15 @@ type TemplateDefinition<S extends string> = {
 export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
 type NodeTemplate<S extends string = string> = {
-  action: Action;
+  action: GenericAction;
   stateModel: [S, Model];
 };
 
 type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
-type GetAction<NT extends NodeTemplate> = Assert<Action, NT['action']>;
+type GetAction<NT extends NodeTemplate> = Assert<GenericAction, NT['action']>;
 
 type Model = Object | string | number | boolean | null; // | undefined
+
+// === Generic Actions
+type GenericAction<T extends string = string, P = {}> = [T] | [T, P];
+type Dispatch<A> = (action: A) => void;

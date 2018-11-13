@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
-import { Action } from '../src/types/Actions';
+import { Action, foo } from '../src/types/Actions';
 import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type EditiableFsm = Fsm<EditiableState, EditableTemplate>;
@@ -20,6 +20,8 @@ type EditableTemplate = DefineTemplate<
     };
   }
 >;
+
+console.log(foo);
 
 const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
   current: 'Readonly',
