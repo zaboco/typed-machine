@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
-import { Action, action, actionP, ActionP } from '../src/types/Actions';
+import { Action } from '../src/types/Actions';
 import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type EditiableFsm = Fsm<EditiableState, EditableTemplate>;
@@ -15,7 +15,7 @@ type EditableTemplate = DefineTemplate<
       model: string;
     };
     Editing: {
-      action: ActionP<'CHANGE_TEXT', string> | Action<'SAVE'> | Action<'DISCARD'>;
+      action: Action<'CHANGE_TEXT', string> | Action<'SAVE'> | Action<'DISCARD'>;
       model: { previous: string; draft: string };
     };
   }
@@ -29,11 +29,11 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
       render: (dispatch, model) => (
         <div>
           {model}
-          <button onClick={() => dispatch(action('START_EDITING'))}>Edit</button>
+          <button onClick={() => dispatch(['START_EDITING'])}>Edit</button>
         </div>
       ),
       transition: (action, model) => {
-        switch (action.type) {
+        switch (action[0]) {
           case 'START_EDITING':
             return ['Editing', { draft: model, previous: model }];
         }
@@ -49,22 +49,22 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
               value={draft}
               autoFocus={true}
               onChange={ev => {
-                dispatch(actionP('CHANGE_TEXT', ev.target.value));
+                dispatch(['CHANGE_TEXT', ev.target.value]);
               }}
             />
-            <button onClick={() => dispatch(action('SAVE'))}>Save</button>
-            <button onClick={() => dispatch(action('DISCARD'))}>Cancel</button>
+            <button onClick={() => dispatch(['SAVE'])}>Save</button>
+            <button onClick={() => dispatch(['DISCARD'])}>Cancel</button>
           </div>
         );
       },
       transition: (action, { previous, draft }) => {
-        switch (action.type) {
+        switch (action[0]) {
           case 'SAVE':
             return ['Readonly', draft];
           case 'DISCARD':
             return ['Readonly', previous];
           case 'CHANGE_TEXT':
-            return ['Editing', { previous, draft: action.payload }];
+            return ['Editing', { previous, draft: action[1] }];
         }
       },
     },

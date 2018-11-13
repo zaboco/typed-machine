@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
-import { Action, action } from '../src/types/Actions';
+import { Action } from '../src/types/Actions';
 import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type ToggleFsm = Fsm<ToggleState, ToggleTemplate>;
@@ -29,11 +29,11 @@ const toggleFsm: ToggleFsm = {
       render: dispatch => (
         <div>
           Enabled
-          <button onClick={() => dispatch(action('DISABLE'))}>Disable</button>
+          <button onClick={() => dispatch(['DISABLE'])}>Disable</button>
         </div>
       ),
       transition: action => {
-        switch (action.type) {
+        switch (action[0]) {
           case 'DISABLE':
             return ['Disabled', null];
           case 'CLOSE':
@@ -46,11 +46,11 @@ const toggleFsm: ToggleFsm = {
       render: dispatch => (
         <div>
           Disabled
-          <button onClick={() => dispatch(action('ENABLE'))}>Enable</button>
+          <button onClick={() => dispatch(['ENABLE'])}>Enable</button>
         </div>
       ),
       transition: action => {
-        switch (action.type) {
+        switch (action[0]) {
           case 'ENABLE':
             return ['Enabled', null];
         }

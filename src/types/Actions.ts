@@ -1,11 +1,13 @@
-export type Action<T extends string = string, P = {}> = { type: T; payload?: P };
-export type ActionP<T extends string, P> = { type: T; payload: P };
+export type EAction<T extends string = string> = [T];
+export type PAction<T extends string = string, P = {}> = [T, P];
+export type Action<T extends string = string, P = {}> = EAction<T> | PAction<T, P>;
+
 export type Dispatch<A extends Action> = (action: A) => void;
 
-export function action<T extends string>(type: T): Action<T> {
-  return { type };
-}
-
-export function actionP<T extends string, P>(type: T, payload: P): ActionP<T, P> {
-  return { type, payload };
-}
+// export function matchAction<A extends Action<T>, R, T extends string = string>(
+//   action: A,
+//   mapping: { [t in A[0]]: A[1] extends undefined ? () => R : (p: A[1]) => R },
+// ): R {
+//   const handler = mapping[action[0]] as Function;
+//   return handler(action[1]);
+// }
