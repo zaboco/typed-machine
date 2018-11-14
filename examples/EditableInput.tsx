@@ -41,7 +41,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
         </div>
       ),
       actionHandlers: {
-        START_EDITING: () => ['Readonly', ''],
+        START_EDITING: () => ['Editing', { draft: 'model', previous: 'model' }],
       },
       transition: (action, model) => {
         switch (action[0]) {
@@ -67,6 +67,11 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
             <button onClick={() => dispatch(['DISCARD'])}>Cancel</button>
           </div>
         );
+      },
+      actionHandlers: {
+        SAVE: () => ['Readonly', 'draft'],
+        DISCARD: () => ['Readonly', 'previous'],
+        CHANGE_TEXT: draft => ['Editing', { previous: 'previous', draft }],
       },
       transition: (action, { previous, draft }) => {
         switch (action[0]) {

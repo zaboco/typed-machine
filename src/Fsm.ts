@@ -23,7 +23,7 @@ type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: FsmNode<
 type FsmNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
   transition: (a: GetAction<CNT>, m: GetModel<CNT>) => NT['stateModel'];
-  actionHandlers?: CNT['actionHandlers'];
+  actionHandlers?: ActionHandlers<NT['stateModel'], CNT['actionPayloads']>;
   render: (d: Dispatch<GetAction<CNT>>, m: GetModel<CNT>) => JSX.Element;
 };
 
@@ -33,7 +33,7 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
   {
     [s in S]: {
       action: TD[s]['action'];
-      actionHandlers: ActionHandlers<[s, TD[s]['model']], TD[s]['actionPayloads']>;
+      actionPayloads: TD[s]['actionPayloads'];
       stateModel: [s, TD[s]['model']];
     }
   }
@@ -51,7 +51,7 @@ export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
 type NodeTemplate<S extends string = string> = {
   action: ActionShape;
-  actionHandlers: ActionHandlers<[S, Model]>;
+  actionPayloads: ActionPayloads;
   stateModel: [S, Model];
 };
 
