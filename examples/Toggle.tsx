@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
-import { Action } from '../src/types/Actions';
 import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type ToggleFsm = Fsm<ToggleState, ToggleTemplate>;
@@ -12,11 +11,16 @@ type ToggleTemplate = DefineTemplate<
   {
     Enabled: {
       model: null;
-      action: Action<'DISABLE'> | Action<'CLOSE'>;
+      actionPayloads: {
+        DISABLE: null;
+        CLOSE: null;
+      };
     };
     Disabled: {
       model: null;
-      action: Action<'ENABLE'>;
+      actionPayloads: {
+        ENABLE: null;
+      };
     };
   }
 >;
@@ -32,13 +36,9 @@ const toggleFsm: ToggleFsm = {
           <button onClick={() => dispatch(['DISABLE'])}>Disable</button>
         </div>
       ),
-      transition: action => {
-        switch (action[0]) {
-          case 'DISABLE':
-            return ['Disabled', null];
-          case 'CLOSE':
-            return ['Disabled', null];
-        }
+      actionHandlers: {
+        CLOSE: () => ['Disabled', null],
+        DISABLE: () => ['Disabled', null],
       },
     },
     Disabled: {
@@ -49,11 +49,8 @@ const toggleFsm: ToggleFsm = {
           <button onClick={() => dispatch(['ENABLE'])}>Enable</button>
         </div>
       ),
-      transition: action => {
-        switch (action[0]) {
-          case 'ENABLE':
-            return ['Enabled', null];
-        }
+      actionHandlers: {
+        ENABLE: () => ['Enabled', null],
       },
     },
   },

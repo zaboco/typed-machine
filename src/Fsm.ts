@@ -1,5 +1,12 @@
-import { Assert, Second } from './types/helpers';
-import { ActionShape, Dispatch, ActionPayloads, ActionHandlers, Model } from './types/Actions';
+import { Assert, Second, KeyValues } from './types/helpers';
+import {
+  ActionShape,
+  Dispatch,
+  ActionPayloads,
+  ActionHandlers,
+  Model,
+  DeriveAction,
+} from './types/Actions';
 
 export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
   fsm: Fsm<S, GT>,
@@ -8,7 +15,12 @@ export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
   const node = fsm.graph[fsm.current];
 
   return node.render(action => {
-    onStateChange(node.transition(action, node.model));
+    const handler = node.actionHandlers[action[0]] as Function;
+    if (action[1] === undefined) {
+      onStateChange(handler(node.model));
+    } else {
+      onStateChange(handler(node.model, action[1]));
+    }
   }, node.model);
 }
 
@@ -22,8 +34,7 @@ type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: FsmNode<
 
 type FsmNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
-  transition: (a: GetAction<CNT>, m: GetModel<CNT>) => NT['stateModel'];
-  actionHandlers?: ActionHandlers<NT['stateModel'], CNT['actionPayloads']>;
+  actionHandlers: ActionHandlers<NT['stateModel'], GetModel<CNT>, CNT['actionPayloads']>;
   render: (d: Dispatch<GetAction<CNT>>, m: GetModel<CNT>) => JSX.Element;
 };
 
@@ -32,7 +43,7 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
   GraphTemplate<S>,
   {
     [s in S]: {
-      action: TD[s]['action'];
+      action: DeriveAction<TD[s]['actionPayloads']>;
       actionPayloads: TD[s]['actionPayloads'];
       stateModel: [s, TD[s]['model']];
     }
@@ -41,7 +52,6 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
 
 type TemplateDefinition<S extends string> = {
   [s in S]: {
-    action: ActionShape;
     actionPayloads: ActionPayloads;
     model: Model;
   }

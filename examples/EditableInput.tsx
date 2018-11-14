@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
-import { Action } from '../src/types/Actions';
 import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type EditiableFsm = Fsm<EditiableState, EditableTemplate>;
@@ -11,14 +10,12 @@ type EditableTemplate = DefineTemplate<
   EditiableState,
   {
     Readonly: {
-      action: Action<'START_EDITING'>;
       actionPayloads: {
         START_EDITING: null;
       };
       model: string;
     };
     Editing: {
-      action: Action<'CHANGE_TEXT', string> | Action<'SAVE'> | Action<'DISCARD'>;
       actionPayloads: {
         CHANGE_TEXT: string;
         SAVE: null;
@@ -41,13 +38,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
         </div>
       ),
       actionHandlers: {
-        START_EDITING: () => ['Editing', { draft: 'model', previous: 'model' }],
-      },
-      transition: (action, model) => {
-        switch (action[0]) {
-          case 'START_EDITING':
-            return ['Editing', { draft: model, previous: model }];
-        }
+        START_EDITING: value => ['Editing', { draft: value, previous: value }],
       },
     },
     Editing: {
@@ -69,19 +60,9 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
         );
       },
       actionHandlers: {
-        SAVE: () => ['Readonly', 'draft'],
-        DISCARD: () => ['Readonly', 'previous'],
-        CHANGE_TEXT: draft => ['Editing', { previous: 'previous', draft }],
-      },
-      transition: (action, { previous, draft }) => {
-        switch (action[0]) {
-          case 'SAVE':
-            return ['Readonly', draft];
-          case 'DISCARD':
-            return ['Readonly', previous];
-          case 'CHANGE_TEXT':
-            return ['Editing', { previous, draft: action[1] }];
-        }
+        SAVE: ({ draft }) => ['Readonly', draft],
+        DISCARD: ({ previous }) => ['Readonly', previous],
+        CHANGE_TEXT: ({ previous }, draft) => ['Editing', { previous, draft }],
       },
     },
   },
