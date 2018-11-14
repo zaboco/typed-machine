@@ -1,5 +1,5 @@
 import { Assert, Second } from './types/helpers';
-import { Dispatch, ActionPayloads, ActionHandlers, Model, DeriveAction } from './types/Actions';
+import { ActionPayloads, ActionHandlers, Model, DeriveAction, Dispatch } from './types/Actions';
 
 export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
   fsm: Fsm<S, GT>,
@@ -7,7 +7,7 @@ export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
 ) {
   const node = fsm.graph[fsm.current];
 
-  return node.render(action => {
+  return node.render((...action) => {
     const handler = node.actionHandlers[action[0]];
     onStateChange(handler(node.model, action[1]));
   }, node.model);

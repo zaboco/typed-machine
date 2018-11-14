@@ -34,7 +34,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
       render: (dispatch, model) => (
         <div>
           {model}
-          <button onClick={() => dispatch(['START_EDITING'])}>Edit</button>
+          <button onClick={() => dispatch('START_EDITING')}>Edit</button>
         </div>
       ),
       actionHandlers: {
@@ -51,11 +51,11 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
               value={draft}
               autoFocus={true}
               onChange={ev => {
-                dispatch(['CHANGE_TEXT', ev.target.value]);
+                dispatch('CHANGE_TEXT', ev.target.value);
               }}
             />
-            <button onClick={() => dispatch(['SAVE'])}>Save</button>
-            <button onClick={() => dispatch(['DISCARD'])}>Cancel</button>
+            <button onClick={() => dispatch('SAVE')}>Save</button>
+            <button onClick={() => dispatch('DISCARD')}>Cancel</button>
           </div>
         );
       },

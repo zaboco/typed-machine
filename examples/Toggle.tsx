@@ -33,7 +33,7 @@ const toggleFsm: ToggleFsm = {
       render: dispatch => (
         <div>
           Enabled
-          <button onClick={() => dispatch(['DISABLE'])}>Disable</button>
+          <button onClick={() => dispatch('DISABLE')}>Disable</button>
         </div>
       ),
       actionHandlers: {
@@ -46,7 +46,7 @@ const toggleFsm: ToggleFsm = {
       render: dispatch => (
         <div>
           Disabled
-          <button onClick={() => dispatch(['ENABLE'])}>Enable</button>
+          <button onClick={() => dispatch('ENABLE')}>Enable</button>
         </div>
       ),
       actionHandlers: {

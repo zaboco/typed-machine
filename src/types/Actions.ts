@@ -1,6 +1,6 @@
 import { ValueOf, Assert } from './helpers';
 
-export type Dispatch<A> = (action: A) => void;
+export type Dispatch<A extends ActionShape> = (...args: A) => void;
 export type Model = Object | string | number | boolean | null;
 
 export type ActionPayloads<P = Model, T extends string = string> = { [t in T]: P };
