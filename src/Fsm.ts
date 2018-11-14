@@ -1,4 +1,5 @@
 import { Assert, Second } from './types/helpers';
+import { ActionShape, Dispatch, ActionPayloads, ActionHandlers, Model } from './types/Actions';
 
 export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
   fsm: Fsm<S, GT>,
@@ -22,23 +23,26 @@ type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: FsmNode<
 type FsmNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
   transition: (a: GetAction<CNT>, m: GetModel<CNT>) => NT['stateModel'];
+  actionHandlers?: CNT['actionHandlers'];
   render: (d: Dispatch<GetAction<CNT>>, m: GetModel<CNT>) => JSX.Element;
 };
 
 // === Templates ===
-export type DefineTemplate<S extends string, GT extends TemplateDefinition<S>> = Assert<
+export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> = Assert<
   GraphTemplate<S>,
   {
     [s in S]: {
-      action: GT[s]['action'];
-      stateModel: [s, GT[s]['model']];
+      action: TD[s]['action'];
+      actionHandlers: ActionHandlers<[s, TD[s]['model']], TD[s]['actionPayloads']>;
+      stateModel: [s, TD[s]['model']];
     }
   }
 >;
 
 type TemplateDefinition<S extends string> = {
   [s in S]: {
-    action: GenericAction;
+    action: ActionShape;
+    actionPayloads: ActionPayloads;
     model: Model;
   }
 };
@@ -46,15 +50,10 @@ type TemplateDefinition<S extends string> = {
 export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
 type NodeTemplate<S extends string = string> = {
-  action: GenericAction;
+  action: ActionShape;
+  actionHandlers: ActionHandlers<[S, Model]>;
   stateModel: [S, Model];
 };
 
 type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
-type GetAction<NT extends NodeTemplate> = Assert<GenericAction, NT['action']>;
-
-type Model = Object | string | number | boolean | null; // | undefined
-
-// === Generic Actions
-type GenericAction<T extends string = string, P = {}> = [T] | [T, P];
-type Dispatch<A> = (action: A) => void;
+type GetAction<NT extends NodeTemplate> = Assert<ActionShape, NT['action']>;

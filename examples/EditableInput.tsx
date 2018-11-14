@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Machine } from '../src/react/Machine';
-import { Action, foo } from '../src/types/Actions';
+import { Action } from '../src/types/Actions';
 import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type EditiableFsm = Fsm<EditiableState, EditableTemplate>;
@@ -12,16 +12,22 @@ type EditableTemplate = DefineTemplate<
   {
     Readonly: {
       action: Action<'START_EDITING'>;
+      actionPayloads: {
+        START_EDITING: null;
+      };
       model: string;
     };
     Editing: {
       action: Action<'CHANGE_TEXT', string> | Action<'SAVE'> | Action<'DISCARD'>;
+      actionPayloads: {
+        CHANGE_TEXT: string;
+        SAVE: null;
+        DISCARD: null;
+      };
       model: { previous: string; draft: string };
     };
   }
 >;
-
-console.log(foo);
 
 const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
   current: 'Readonly',
@@ -34,6 +40,9 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
           <button onClick={() => dispatch(['START_EDITING'])}>Edit</button>
         </div>
       ),
+      actionHandlers: {
+        START_EDITING: () => ['Readonly', ''],
+      },
       transition: (action, model) => {
         switch (action[0]) {
           case 'START_EDITING':
