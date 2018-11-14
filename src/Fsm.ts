@@ -8,7 +8,7 @@ export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
   const node = fsm.graph[fsm.current];
 
   return node.render((...action) => {
-    const handler = node.actionHandlers[action[0]];
+    const handler = node.transitions[action[0]];
     onStateChange(handler(node.model, action[1]));
   }, node.model);
 }
@@ -23,8 +23,8 @@ type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: FsmNode<
 
 type FsmNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
-  actionHandlers: ActionHandlers<NT['stateModel'], GetModel<CNT>, CNT['actionPayloads']>;
-  render: (d: Dispatch<DeriveAction<CNT['actionPayloads']>>, m: GetModel<CNT>) => JSX.Element;
+  transitions: ActionHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
+  render: (d: Dispatch<DeriveAction<CNT['transitionPayloads']>>, m: GetModel<CNT>) => JSX.Element;
 };
 
 // === Templates ===
@@ -32,7 +32,7 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
   GraphTemplate<S>,
   {
     [s in S]: {
-      actionPayloads: TD[s]['actionPayloads'];
+      transitionPayloads: TD[s]['transitionPayloads'];
       stateModel: [s, TD[s]['model']];
     }
   }
@@ -40,7 +40,7 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
 
 type TemplateDefinition<S extends string> = {
   [s in S]: {
-    actionPayloads: ActionPayloads;
+    transitionPayloads: ActionPayloads;
     model: Model;
   }
 };
@@ -48,7 +48,7 @@ type TemplateDefinition<S extends string> = {
 export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
 type NodeTemplate<S extends string = string> = {
-  actionPayloads: ActionPayloads;
+  transitionPayloads: ActionPayloads;
   stateModel: [S, Model];
 };
 

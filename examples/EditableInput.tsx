@@ -10,13 +10,13 @@ type EditableTemplate = DefineTemplate<
   EditiableState,
   {
     Readonly: {
-      actionPayloads: {
+      transitionPayloads: {
         START_EDITING: null;
       };
       model: string;
     };
     Editing: {
-      actionPayloads: {
+      transitionPayloads: {
         CHANGE_TEXT: string;
         SAVE: null;
         DISCARD: null;
@@ -37,7 +37,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
           <button onClick={() => dispatch('START_EDITING')}>Edit</button>
         </div>
       ),
-      actionHandlers: {
+      transitions: {
         START_EDITING: value => ['Editing', { draft: value, previous: value }],
       },
     },
@@ -59,7 +59,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
           </div>
         );
       },
-      actionHandlers: {
+      transitions: {
         SAVE: ({ draft }) => ['Readonly', draft],
         DISCARD: ({ previous }) => ['Readonly', previous],
         CHANGE_TEXT: ({ previous }, draft) => ['Editing', { previous, draft }],

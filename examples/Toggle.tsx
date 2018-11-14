@@ -11,14 +11,14 @@ type ToggleTemplate = DefineTemplate<
   {
     Enabled: {
       model: null;
-      actionPayloads: {
+      transitionPayloads: {
         DISABLE: null;
         CLOSE: null;
       };
     };
     Disabled: {
       model: null;
-      actionPayloads: {
+      transitionPayloads: {
         ENABLE: null;
       };
     };
@@ -36,7 +36,7 @@ const toggleFsm: ToggleFsm = {
           <button onClick={() => dispatch('DISABLE')}>Disable</button>
         </div>
       ),
-      actionHandlers: {
+      transitions: {
         CLOSE: () => ['Disabled', null],
         DISABLE: () => ['Disabled', null],
       },
@@ -49,7 +49,7 @@ const toggleFsm: ToggleFsm = {
           <button onClick={() => dispatch('ENABLE')}>Enable</button>
         </div>
       ),
-      actionHandlers: {
+      transitions: {
         ENABLE: () => ['Enabled', null],
       },
     },
