@@ -26,11 +26,11 @@ type EditableTemplate = DefineTemplate<
   }
 >;
 
-const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
+const makeEditiabbleFsm = ({ defaultValue, onChange }: EditiabbleInputProps): EditiableFsm => ({
   current: 'Readonly',
   graph: {
     Readonly: {
-      model: initialValue,
+      model: defaultValue,
       render: (dispatch, model) => (
         <div>
           {model}
@@ -42,7 +42,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
       },
     },
     Editing: {
-      model: { draft: initialValue, previous: initialValue },
+      model: { draft: defaultValue, previous: defaultValue },
       render: (dispatch, { draft }) => {
         return (
           <div>
@@ -60,7 +60,12 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
         );
       },
       transitions: {
-        SAVE: ({ draft }) => ['Readonly', draft],
+        SAVE: ({ draft, previous }) => {
+          if (draft !== previous) {
+            onChange(draft);
+          }
+          return ['Readonly', draft];
+        },
         DISCARD: ({ previous }) => ['Readonly', previous],
         CHANGE_TEXT: ({ previous }, newDraft) => ['Editing', { previous, draft: newDraft }],
       },
@@ -69,9 +74,10 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
 });
 
 export type EditiabbleInputProps = {
-  value: string;
+  defaultValue: string;
+  onChange: (s: string) => void;
 };
 
-export const EditiabbleInput = ({ value }: EditiabbleInputProps) => (
-  <Machine {...makeEditiabbleFsm(value)} />
+export const EditiabbleInput = (props: EditiabbleInputProps) => (
+  <Machine {...makeEditiabbleFsm(props)} />
 );

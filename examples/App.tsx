@@ -7,7 +7,12 @@ export class App extends React.Component {
     return (
       <div>
         <Toggle />
-        <EditiabbleInput value="Foo" />
+        <EditiabbleInput
+          defaultValue="Foo"
+          onChange={value => {
+            console.log('Value has changed:', value);
+          }}
+        />
       </div>
     );
   }
