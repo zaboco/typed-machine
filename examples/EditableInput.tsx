@@ -62,7 +62,7 @@ const makeEditiabbleFsm = (initialValue: string): EditiableFsm => ({
       transitions: {
         SAVE: ({ draft }) => ['Readonly', draft],
         DISCARD: ({ previous }) => ['Readonly', previous],
-        CHANGE_TEXT: ({ previous }, draft) => ['Editing', { previous, draft }],
+        CHANGE_TEXT: ({ previous }, newDraft) => ['Editing', { previous, draft: newDraft }],
       },
     },
   },
