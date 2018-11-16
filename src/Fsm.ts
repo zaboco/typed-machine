@@ -4,7 +4,7 @@ import { ActionPayloads, ActionHandlers, Model, DeriveAction, Dispatch } from '.
 export function renderCurrent<R, S extends string, GT extends GraphTemplate<S>>(
   fsm: Fsm<R, S, GT>,
   onStateChange: ([s, m]: [S, Model]) => void,
-) {
+): R {
   const node = fsm.graph[fsm.current];
 
   return node.render((...action) => {
