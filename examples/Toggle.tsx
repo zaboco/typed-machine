@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Machine } from '../src/react/Machine';
-import { Fsm, DefineTemplate } from '../src/Fsm';
+import { Machine, ReactFsm } from '../src/react/Machine';
+import { DefineTemplate } from '../src/Fsm';
 
-type ToggleFsm = Fsm<ToggleState, ToggleTemplate>;
+type ToggleFsm = ReactFsm<ToggleState, ToggleTemplate>;
 
 type ToggleState = 'Enabled' | 'Disabled';
 

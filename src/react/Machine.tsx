@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { Fsm, renderCurrent, GraphTemplate } from '../Fsm';
 
+export type ReactFsm<S extends string, GT extends GraphTemplate<S>> = Fsm<JSX.Element, S, GT>;
+
 export class Machine<S extends string, GT extends GraphTemplate<S>> extends React.Component<
-  Fsm<S, GT>,
-  Fsm<S, GT>
+  ReactFsm<S, GT>,
+  ReactFsm<S, GT>
 > {
   state = {
     current: this.props.current,
