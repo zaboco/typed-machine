@@ -1,8 +1,8 @@
 import { Assert, Second } from './types/helpers';
 import { ActionPayloads, ActionHandlers, Model, DeriveAction, Dispatch } from './types/Actions';
 
-export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
-  fsm: Fsm<S, GT>,
+export function renderCurrent<R, S extends string, GT extends GraphTemplate<S>>(
+  fsm: Fsm<R, S, GT>,
   onStateChange: ([s, m]: [S, Model]) => void,
 ) {
   const node = fsm.graph[fsm.current];
@@ -14,17 +14,19 @@ export function renderCurrent<S extends string, GT extends GraphTemplate<S>>(
 }
 
 // === Fsm ===
-export type Fsm<S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = {
+export type Fsm<R, S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = {
   current: S;
-  graph: Graph<S, GT>;
+  graph: Graph<R, S, GT>;
 };
 
-type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: FsmNode<GT[s], GT[S]> };
+type Graph<R, S extends string, GT extends GraphTemplate<S>> = {
+  [s in S]: FsmNode<R, GT[s], GT[S]>
+};
 
-type FsmNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
+type FsmNode<R, CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
   transitions: ActionHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
-  render: (d: Dispatch<DeriveAction<CNT['transitionPayloads']>>, m: GetModel<CNT>) => JSX.Element;
+  render: (d: Dispatch<DeriveAction<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
 };
 
 // === Templates ===
