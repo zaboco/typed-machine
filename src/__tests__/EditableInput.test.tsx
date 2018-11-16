@@ -2,11 +2,18 @@ import { cleanup, fireEvent, render, RenderResult } from 'react-testing-library'
 import * as React from 'react';
 
 import { EditiabbleInputProps, EditiableInput } from '../../examples/EditableInput';
+import { applyActions, composeActions, makeAction } from '../__test__helpers__/UserActions';
 
 const defaultValue = 'Some value';
+const newValue = 'new value';
 
 describe('EditableInput', () => {
   afterEach(cleanup);
+
+  const click = (buttonLabel: string) =>
+    makeAction(({ getByText }) => {
+      fireEvent.click(getByText(buttonLabel));
+    });
 
   it('starts in readonly mode', () => {
     const { getByTestId } = renderComponent();
@@ -14,67 +21,44 @@ describe('EditableInput', () => {
   });
 
   it('goes to Editing mode if pressing Edit', () => {
-    const { getByValue, getByText } = renderComponent();
-
-    fireEvent.click(getByText('Edit'));
-
+    const { getByValue } = click('Edit')(renderComponent());
     expect(getByValue(defaultValue)).toBeDefined();
   });
 
   describe('from Editing', () => {
-    it('updates value when pressing Save', () => {
-      const newValue = 'new value';
-
-      const { getByTestId } = submitValue(newValue, enableEditing(renderComponent()));
-
-      expect(getByTestId('readonly').textContent).toBe(newValue);
-    });
+    const changeInput = (newValue: string) =>
+      makeAction(({ getByValue }) => {
+        fireEvent.change(getByValue(defaultValue), { target: { value: newValue } });
+      });
 
     it('restores old value when pressing Cancel', () => {
-      const { getByValue, getByText, getByTestId } = enableEditing(renderComponent());
-
-      fireEvent.change(getByValue(defaultValue), { target: { value: 'something stupid' } });
-      fireEvent.click(getByText('Cancel'));
-
+      const { getByTestId } = applyActions(renderComponent(), [
+        click('Edit'),
+        changeInput('something stupid'),
+        click('Cancel'),
+      ]);
       expect(getByTestId('readonly').textContent).toBe(defaultValue);
     });
 
-    it('calls onChange when updating the value', () => {
-      const newValue = 'new value';
-      const onChangeSpy = jest.fn();
+    const submitValue = (newValue: string) =>
+      composeActions([click('Edit'), changeInput(newValue), click('Save')]);
 
-      submitValue(newValue, enableEditing(renderComponent({ onChange: onChangeSpy })));
-
-      expect(onChangeSpy).toHaveBeenCalledWith(newValue);
+    it('updates value when pressing Save', () => {
+      const { getByTestId } = submitValue(newValue)(renderComponent());
+      expect(getByTestId('readonly').textContent).toBe(newValue);
     });
 
-    it('calls onChange callback when updating the value', () => {
-      const newValue = 'new value';
+    it('calls onChange when updating the value', () => {
       const onChangeSpy = jest.fn();
-
-      submitValue(newValue, enableEditing(renderComponent({ onChange: onChangeSpy })));
-
+      submitValue(newValue)(renderComponent({ onChange: onChangeSpy }));
       expect(onChangeSpy).toHaveBeenCalledWith(newValue);
     });
 
     it('does not call onChange if the text has not changed', () => {
       const onChangeSpy = jest.fn();
-
-      submitValue(defaultValue, enableEditing(renderComponent({ onChange: onChangeSpy })));
-
+      submitValue(defaultValue)(renderComponent({ onChange: onChangeSpy }));
       expect(onChangeSpy).not.toHaveBeenCalled();
     });
-
-    function enableEditing(renderResult: RenderResult): RenderResult {
-      fireEvent.click(renderResult.getByText('Edit'));
-      return renderResult;
-    }
-
-    function submitValue(newValue: string, rendeResult: RenderResult): RenderResult {
-      fireEvent.change(rendeResult.getByValue(defaultValue), { target: { value: newValue } });
-      fireEvent.click(rendeResult.getByText('Save'));
-      return rendeResult;
-    }
   });
 });
 
