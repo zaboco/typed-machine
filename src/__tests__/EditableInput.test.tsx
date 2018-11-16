@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, RenderResult } from 'react-testing-library';
 import * as React from 'react';
 
-import { EditiabbleInputProps, EditiableInput } from '../../examples/EditableInput';
+import { EditableInputProps, EditableInput } from '../../examples/EditableInput';
 import { applyActions, composeActions, makeAction } from '../__test__helpers__/UserActions';
 
 const defaultValue = 'Some value';
@@ -62,11 +62,11 @@ describe('EditableInput', () => {
   });
 });
 
-function renderComponent(customProps: Partial<EditiabbleInputProps> = {}): RenderResult {
-  const defaultProps: EditiabbleInputProps = {
+function renderComponent(customProps: Partial<EditableInputProps> = {}): RenderResult {
+  const defaultProps: EditableInputProps = {
     defaultValue,
     onChange: () => {},
   };
 
-  return render(<EditiableInput {...defaultProps} {...customProps} />);
+  return render(<EditableInput {...defaultProps} {...customProps} />);
 }
