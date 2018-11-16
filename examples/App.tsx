@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { EditiableInput } from './EditableInput';
+import { EditableInput } from './EditableInput';
 import { Toggle } from './Toggle';
 
 export class App extends React.Component {
@@ -7,7 +7,7 @@ export class App extends React.Component {
     return (
       <div>
         <Toggle />
-        <EditiableInput
+        <EditableInput
           defaultValue="Foo"
           onChange={value => {
             console.log('Value has changed:', value);

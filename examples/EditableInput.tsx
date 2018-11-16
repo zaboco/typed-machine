@@ -2,12 +2,12 @@ import * as React from 'react';
 import { Machine, ReactFsm } from '../src/react/Machine';
 import { DefineTemplate } from '../src/Fsm';
 
-type EditiableFsm = ReactFsm<EditiableState, EditableTemplate>;
+type EditableFsm = ReactFsm<EditableState, EditableTemplate>;
 
-export type EditiableState = 'Readonly' | 'Editing';
+export type EditableState = 'Readonly' | 'Editing';
 
 type EditableTemplate = DefineTemplate<
-  EditiableState,
+  EditableState,
   {
     Readonly: {
       transitionPayloads: {
@@ -26,7 +26,7 @@ type EditableTemplate = DefineTemplate<
   }
 >;
 
-const makeEditiabbleFsm = ({ defaultValue, onChange }: EditiabbleInputProps): EditiableFsm => ({
+const makeEditableFsm = ({ defaultValue, onChange }: EditableInputProps): EditableFsm => ({
   current: 'Readonly',
   graph: {
     Readonly: {
@@ -74,11 +74,9 @@ const makeEditiabbleFsm = ({ defaultValue, onChange }: EditiabbleInputProps): Ed
   },
 });
 
-export type EditiabbleInputProps = {
+export type EditableInputProps = {
   defaultValue: string;
   onChange: (s: string) => void;
 };
 
-export const EditiableInput = (props: EditiabbleInputProps) => (
-  <Machine {...makeEditiabbleFsm(props)} />
-);
+export const EditableInput = (props: EditableInputProps) => <Machine {...makeEditableFsm(props)} />;
