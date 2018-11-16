@@ -4,7 +4,7 @@ import { Fsm, DefineTemplate } from '../src/Fsm';
 
 type EditiableFsm = Fsm<EditiableState, EditableTemplate>;
 
-type EditiableState = 'Readonly' | 'Editing';
+export type EditiableState = 'Readonly' | 'Editing';
 
 type EditableTemplate = DefineTemplate<
   EditiableState,
@@ -33,7 +33,7 @@ const makeEditiabbleFsm = ({ defaultValue, onChange }: EditiabbleInputProps): Ed
       model: defaultValue,
       render: (dispatch, model) => (
         <div>
-          {model}
+          <span data-testid="readonly">{model}</span>
           <button onClick={() => dispatch('START_EDITING')}>Edit</button>
         </div>
       ),
@@ -47,6 +47,7 @@ const makeEditiabbleFsm = ({ defaultValue, onChange }: EditiabbleInputProps): Ed
         return (
           <div>
             <input
+              data-testid="draft-input"
               type="text"
               value={draft}
               autoFocus={true}
@@ -78,6 +79,6 @@ export type EditiabbleInputProps = {
   onChange: (s: string) => void;
 };
 
-export const EditiabbleInput = (props: EditiabbleInputProps) => (
+export const EditiableInput = (props: EditiabbleInputProps) => (
   <Machine {...makeEditiabbleFsm(props)} />
 );
