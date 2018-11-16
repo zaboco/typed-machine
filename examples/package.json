@@ -1,0 +1,22 @@
+{
+  "name": "react-fsm-examples",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "@types/react": "16.7.3",
+    "@types/react-dom": "16.0.9",
+    "parcel-bundler": "1.10.3"
+  },
+  "dependencies": {
+    "react": "16.6.1",
+    "react-dom": "16.6.1"
+  },
+  "license": "MIT"
+}
