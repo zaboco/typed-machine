@@ -1,13 +1,13 @@
 import { cleanup, render, RenderResult } from 'react-testing-library';
 import * as React from 'react';
 
-import { EditableInputProps, EditableInput } from './EditableInput';
+import { EditableItemProps, EditableItem } from './EditableItem';
 import { runSteps, click, composeSteps, inputHandlerByValue } from './__test__helpers__/Steps';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';
 
-describe('EditableInput', () => {
+describe('EditableItem', () => {
   afterEach(cleanup);
 
   it('starts in readonly mode', () => {
@@ -54,11 +54,11 @@ describe('EditableInput', () => {
   });
 });
 
-function renderComponent(customProps: Partial<EditableInputProps> = {}): RenderResult {
-  const defaultProps: EditableInputProps = {
+function renderComponent(customProps: Partial<EditableItemProps> = {}): RenderResult {
+  const defaultProps: EditableItemProps = {
     defaultValue,
     onChange: () => {},
   };
 
-  return render(<EditableInput {...defaultProps} {...customProps} />);
+  return render(<EditableItem {...defaultProps} {...customProps} />);
 }
