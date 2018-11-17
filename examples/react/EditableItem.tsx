@@ -26,7 +26,7 @@ type EditableTemplate = DefineTemplate<
   }
 >;
 
-const makeEditableFsm = ({ defaultValue, onChange }: EditableInputProps): EditableFsm => ({
+const makeEditableFsm = ({ defaultValue, onChange }: EditableItemProps): EditableFsm => ({
   current: 'Readonly',
   graph: {
     Readonly: {
@@ -74,9 +74,9 @@ const makeEditableFsm = ({ defaultValue, onChange }: EditableInputProps): Editab
   },
 });
 
-export type EditableInputProps = {
+export type EditableItemProps = {
   defaultValue: string;
   onChange: (s: string) => void;
 };
 
-export const EditableInput = (props: EditableInputProps) => <Machine {...makeEditableFsm(props)} />;
+export const EditableItem = (props: EditableItemProps) => <Machine {...makeEditableFsm(props)} />;

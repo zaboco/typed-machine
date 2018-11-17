@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
-import { EditableInput } from './EditableInput';
+import { EditableItem } from './EditableItem';
 
 class App extends React.Component {
   render() {
     return (
-      <EditableInput
+      <EditableItem
         defaultValue="Foo"
         onChange={value => {
           console.log('Value has changed:', value);
