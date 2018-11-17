@@ -1,14 +1,14 @@
-import { DefineTemplate, Fsm, renderCurrent } from './Fsm';
-import { DeriveAction, Dispatch } from './types/Actions';
+import { DefineTemplate, Machine, renderCurrent } from './Machine';
+import { DeriveMessage, Dispatch } from './types/Messages';
 
-type TestFsm = Fsm<TestDispatch, TestState, TestTemplate>;
+type TestMachine = Machine<TestDispatch, TestState, TestTemplate>;
 
 type TestState = 'StateB' | 'StateA';
 
-type TestDispatch = Dispatch<ActionA> | Dispatch<ActionB>;
-type TestAction = ActionA | ActionB;
-type ActionA = DeriveAction<TestTemplate['StateB']['transitionPayloads']>;
-type ActionB = DeriveAction<TestTemplate['StateA']['transitionPayloads']>;
+type TestDispatch = Dispatch<MessageA> | Dispatch<MessageB>;
+type TestMessage = MessageA | MessageB;
+type MessageA = DeriveMessage<TestTemplate['StateB']['transitionPayloads']>;
+type MessageB = DeriveMessage<TestTemplate['StateA']['transitionPayloads']>;
 
 type TestTemplate = DefineTemplate<
   TestState,
@@ -29,7 +29,7 @@ type TestTemplate = DefineTemplate<
   }
 >;
 
-const fsmInStateA: TestFsm = {
+const machineInStateA: TestMachine = {
   current: 'StateA',
   graph: {
     StateA: {
@@ -50,53 +50,53 @@ const fsmInStateA: TestFsm = {
   },
 };
 
-describe('Fsm', () => {
+describe('Machine', () => {
   it('can transition from A to B', async () => {
-    await trigger(fsmInStateA, ['GO_TO_B', 'text-from-a'], stateModel => {
+    await trigger(machineInStateA, ['GO_TO_B', 'text-from-a'], stateModel => {
       expect(stateModel).toEqual(['StateB', 'Got text text-from-a and number 0']);
     });
   });
 
   it('can transition from A to itself', async () => {
-    await trigger(fsmInStateA, ['ACCUMULATE_IN_A', 10], stateModel => {
+    await trigger(machineInStateA, ['ACCUMULATE_IN_A', 10], stateModel => {
       expect(stateModel).toEqual(['StateA', 10]);
     });
   });
 
   it('can transition from B back to A', async () => {
-    const fsmInStateB = await trigger(fsmInStateA, ['GO_TO_B', '']);
-    await trigger(fsmInStateB, ['GO_TO_A'], stateModel => {
+    const machineInStateB = await trigger(machineInStateA, ['GO_TO_B', '']);
+    await trigger(machineInStateB, ['GO_TO_A'], stateModel => {
       expect(stateModel).toEqual(['StateA', 0]);
     });
   });
 
   it('silently ignores invalid transition', async () => {
-    await trigger(fsmInStateA, ['GO_TO_A'], stateModel => {
+    await trigger(machineInStateA, ['GO_TO_A'], stateModel => {
       expect(stateModel).toEqual(['StateA', 0]);
     });
   });
 });
 
-function trigger<A extends TestAction>(
-  fsm: TestFsm,
-  action: A,
+function trigger<A extends TestMessage>(
+  machine: TestMachine,
+  message: A,
   callback?: (stateModel: [TestState, unknown]) => void,
-): Promise<TestFsm> {
+): Promise<TestMachine> {
   return new Promise((resolve, reject) => {
     try {
-      const triggerDispatch = renderCurrent(fsm, newFsm => {
+      const triggerDispatch = renderCurrent(machine, newMachine => {
         if (callback) {
-          callback(getStateModel(newFsm));
+          callback(getStateModel(newMachine));
         }
-        resolve(newFsm);
+        resolve(newMachine);
       }) as Dispatch<A>;
-      triggerDispatch(...action);
+      triggerDispatch(...message);
     } catch (e) {
       reject(e);
     }
   });
 }
 
-function getStateModel(fsm: TestFsm): [TestState, unknown] {
-  return [fsm.current, fsm.graph[fsm.current].model];
+function getStateModel(machine: TestMachine): [TestState, unknown] {
+  return [machine.current, machine.graph[machine.current].model];
 }
