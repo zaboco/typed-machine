@@ -1,12 +1,12 @@
 {
-  "name": "react-fsm-examples",
+  "name": "react-machine-examples",
   "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html",
-    "test": "jest --coverage"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",

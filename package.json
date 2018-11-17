@@ -1,8 +1,8 @@
 {
-  "name": "react-fsm",
+  "name": "strict-machine",
   "version": "1.0.0",
   "description": "Strict Finite State Machine written in TS",
-  "main": "src/Fsm",
+  "main": "src/Machine",
   "scripts": {
     "test": "jest --coverage"
   },

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Machine, ReactFsm } from '../../src/react/Machine';
-import { DefineTemplate } from '../../src/Fsm';
+import { MachineContainer, ReactMachine } from '../../src/react/MachineContainer';
+import { DefineTemplate } from '../../src/Machine';
 
-type EditableFsm = ReactFsm<EditableState, EditableTemplate>;
+type EditableMachine = ReactMachine<EditableState, EditableTemplate>;
 
 export type EditableState = 'Readonly' | 'Editing';
 
@@ -26,7 +26,7 @@ type EditableTemplate = DefineTemplate<
   }
 >;
 
-const makeEditableFsm = ({ defaultValue, onChange }: EditableItemProps): EditableFsm => ({
+const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): EditableMachine => ({
   current: 'Readonly',
   graph: {
     Readonly: {
@@ -79,4 +79,6 @@ export type EditableItemProps = {
   onChange: (s: string) => void;
 };
 
-export const EditableItem = (props: EditableItemProps) => <Machine {...makeEditableFsm(props)} />;
+export const EditableItem = (props: EditableItemProps) => (
+  <MachineContainer {...makeEditableMachine(props)} />
+);

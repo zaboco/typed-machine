@@ -1,50 +1,50 @@
 import { Assert, Second } from './types/helpers';
-import { ActionPayloads, ActionHandlers, Model, DeriveAction, Dispatch } from './types/Actions';
+import { MessagePayloads, MessageHandlers, Model, DeriveMessage, Dispatch } from './types/Messages';
 
 export function renderCurrent<R, S extends string, GT extends GraphTemplate<S>>(
-  fsm: Fsm<R, S, GT>,
-  onChange: (updatedMachine: Fsm<R, S, GT>) => void,
+  machine: Machine<R, S, GT>,
+  onChange: (updatedMachine: Machine<R, S, GT>) => void,
 ): R {
-  const node = fsm.graph[fsm.current];
+  const node = machine.graph[machine.current];
 
-  return node.render((...action) => {
-    const handler = node.transitions[action[0]];
+  return node.render((...message) => {
+    const handler = node.transitions[message[0]];
 
     // Condition needed only when coming from JS. In TS this code is unreachable.
     // If the transition is invalid, silently ignore it, returning the current machine.
     if (handler === undefined) {
-      onChange(fsm);
+      onChange(machine);
       return;
     }
 
-    const [newState, newModel] = handler(node.model, action[1]);
-    const newFsm = {
+    const [newState, newModel] = handler(node.model, message[1]);
+    const newMachine = {
       current: newState,
-      graph: Object.assign({}, fsm.graph, {
-        [newState]: Object.assign({}, fsm.graph[newState], {
+      graph: Object.assign({}, machine.graph, {
+        [newState]: Object.assign({}, machine.graph[newState], {
           model: newModel,
         }),
       }),
     };
 
-    onChange(newFsm);
+    onChange(newMachine);
   }, node.model);
 }
 
-// === Fsm ===
-export type Fsm<R, S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = {
+// === Machine ===
+export type Machine<R, S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = {
   current: S;
   graph: Graph<R, S, GT>;
 };
 
 type Graph<R, S extends string, GT extends GraphTemplate<S>> = {
-  [s in S]: FsmNode<R, GT[s], GT[S]>
+  [s in S]: MachineNode<R, GT[s], GT[S]>
 };
 
-type FsmNode<R, CNT extends NodeTemplate, NT extends NodeTemplate> = {
+type MachineNode<R, CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
-  transitions: ActionHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
-  render: (d: Dispatch<DeriveAction<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
+  transitions: MessageHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
+  render: (d: Dispatch<DeriveMessage<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
 };
 
 // === Templates ===
@@ -60,7 +60,7 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
 
 type TemplateDefinition<S extends string> = {
   [s in S]: {
-    transitionPayloads: ActionPayloads;
+    transitionPayloads: MessagePayloads;
     model: Model;
   }
 };
@@ -68,7 +68,7 @@ type TemplateDefinition<S extends string> = {
 export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
 type NodeTemplate<S extends string = string> = {
-  transitionPayloads: ActionPayloads;
+  transitionPayloads: MessagePayloads;
   stateModel: [S, Model];
 };
 
