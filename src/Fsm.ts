@@ -3,13 +3,31 @@ import { ActionPayloads, ActionHandlers, Model, DeriveAction, Dispatch } from '.
 
 export function renderCurrent<R, S extends string, GT extends GraphTemplate<S>>(
   fsm: Fsm<R, S, GT>,
-  onStateChange: ([s, m]: [S, Model]) => void,
-) {
+  onChange: (updatedMachine: Fsm<R, S, GT>) => void,
+): R {
   const node = fsm.graph[fsm.current];
 
   return node.render((...action) => {
     const handler = node.transitions[action[0]];
-    onStateChange(handler(node.model, action[1]));
+
+    // Condition needed only when coming from JS. In TS this code is unreachable.
+    // If the transition is invalid, silently ignore it, returning the current machine.
+    if (handler === undefined) {
+      onChange(fsm);
+      return;
+    }
+
+    const [newState, newModel] = handler(node.model, action[1]);
+    const newFsm = {
+      current: newState,
+      graph: Object.assign({}, fsm.graph, {
+        [newState]: Object.assign({}, fsm.graph[newState], {
+          model: newModel,
+        }),
+      }),
+    };
+
+    onChange(newFsm);
   }, node.model);
 }
 

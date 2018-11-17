@@ -13,17 +13,8 @@ export class Machine<S extends string, GT extends GraphTemplate<S>> extends Reac
   };
 
   render() {
-    return renderCurrent(this.state, ([current, model]) => {
-      this.setState(({ graph }) => {
-        return {
-          current,
-          graph: Object.assign({}, graph, {
-            [current]: Object.assign({}, graph[current], {
-              model,
-            }),
-          }),
-        };
-      });
+    return renderCurrent(this.state, newFsm => {
+      this.setState(newFsm);
     });
   }
 }
