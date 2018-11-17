@@ -1,5 +1,5 @@
-import { DefineTemplate, Fsm, renderCurrent } from '../Fsm';
-import { DeriveAction, Dispatch } from '../types/Actions';
+import { DefineTemplate, Fsm, renderCurrent } from './Fsm';
+import { DeriveAction, Dispatch } from './types/Actions';
 
 type TestFsm = Fsm<TestDispatch, TestState, TestTemplate>;
 

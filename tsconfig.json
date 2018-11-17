@@ -6,7 +6,6 @@
     "jsx": "react",
     "strict": true,
     "esModuleInterop": true,
-    // "noUnusedLocals": true,
     "keyofStringsOnly": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

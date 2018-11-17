@@ -1,13 +1,13 @@
 import { cleanup, render, RenderResult } from 'react-testing-library';
 import * as React from 'react';
 
-import { EditableInputProps, EditableInput } from '../../examples/EditableInput';
+import { EditableInputProps, EditableInput } from './EditableInput';
 import {
   runInteractions,
   click,
   composeInteractions,
   inputHandlerByValue,
-} from '../__test__helpers__/Interactions';
+} from './__test__helpers__/Interactions';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';
