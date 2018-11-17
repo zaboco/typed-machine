@@ -1,11 +1,12 @@
-import { cleanup, fireEvent, render, RenderResult } from 'react-testing-library';
+import { cleanup, render, RenderResult } from 'react-testing-library';
 import * as React from 'react';
 
 import { EditableInputProps, EditableInput } from '../../examples/EditableInput';
 import {
-  applyInteractions,
+  runInteractions,
+  click,
   composeInteractions,
-  interaction,
+  inputHandlerByValue,
 } from '../__test__helpers__/Interactions';
 
 const defaultValue = 'Some value';
@@ -13,11 +14,6 @@ const newValue = 'new value';
 
 describe('EditableInput', () => {
   afterEach(cleanup);
-
-  const click = (buttonLabel: string) =>
-    interaction(({ getByText }) => {
-      fireEvent.click(getByText(buttonLabel));
-    });
 
   it('starts in readonly mode', () => {
     const { getByTestId } = renderComponent();
@@ -30,13 +26,10 @@ describe('EditableInput', () => {
   });
 
   describe('from Editing', () => {
-    const changeInput = (newValue: string) =>
-      interaction(({ getByValue }) => {
-        fireEvent.change(getByValue(defaultValue), { target: { value: newValue } });
-      });
+    const changeInput = inputHandlerByValue(defaultValue);
 
     it('restores old value when pressing Cancel', () => {
-      const { getByTestId } = applyInteractions(renderComponent(), [
+      const { getByTestId } = runInteractions(renderComponent(), [
         click('Edit'),
         changeInput('something stupid'),
         click('Cancel'),
