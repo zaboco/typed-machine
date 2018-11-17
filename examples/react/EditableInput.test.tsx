@@ -2,12 +2,7 @@ import { cleanup, render, RenderResult } from 'react-testing-library';
 import * as React from 'react';
 
 import { EditableInputProps, EditableInput } from './EditableInput';
-import {
-  runInteractions,
-  click,
-  composeInteractions,
-  inputHandlerByValue,
-} from './__test__helpers__/Interactions';
+import { runSteps, click, composeSteps, inputHandlerByValue } from './__test__helpers__/Steps';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';
@@ -29,7 +24,7 @@ describe('EditableInput', () => {
     const changeInput = inputHandlerByValue(defaultValue);
 
     it('restores old value when pressing Cancel', () => {
-      const { getByTestId } = runInteractions(renderComponent(), [
+      const { getByTestId } = runSteps(renderComponent(), [
         click('Edit'),
         changeInput('something stupid'),
         click('Cancel'),
@@ -38,7 +33,7 @@ describe('EditableInput', () => {
     });
 
     const submitValue = (newValue: string) =>
-      composeInteractions([click('Edit'), changeInput(newValue), click('Save')]);
+      composeSteps([click('Edit'), changeInput(newValue), click('Save')]);
 
     it('updates value when pressing Save', () => {
       const { getByTestId } = submitValue(newValue)(renderComponent());
