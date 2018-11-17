@@ -2,7 +2,11 @@ import { cleanup, fireEvent, render, RenderResult } from 'react-testing-library'
 import * as React from 'react';
 
 import { EditableInputProps, EditableInput } from '../../examples/EditableInput';
-import { applyActions, composeActions, makeAction } from '../__test__helpers__/UserActions';
+import {
+  applyInteractions,
+  composeInteractions,
+  interaction,
+} from '../__test__helpers__/Interactions';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';
@@ -11,7 +15,7 @@ describe('EditableInput', () => {
   afterEach(cleanup);
 
   const click = (buttonLabel: string) =>
-    makeAction(({ getByText }) => {
+    interaction(({ getByText }) => {
       fireEvent.click(getByText(buttonLabel));
     });
 
@@ -27,12 +31,12 @@ describe('EditableInput', () => {
 
   describe('from Editing', () => {
     const changeInput = (newValue: string) =>
-      makeAction(({ getByValue }) => {
+      interaction(({ getByValue }) => {
         fireEvent.change(getByValue(defaultValue), { target: { value: newValue } });
       });
 
     it('restores old value when pressing Cancel', () => {
-      const { getByTestId } = applyActions(renderComponent(), [
+      const { getByTestId } = applyInteractions(renderComponent(), [
         click('Edit'),
         changeInput('something stupid'),
         click('Cancel'),
@@ -41,7 +45,7 @@ describe('EditableInput', () => {
     });
 
     const submitValue = (newValue: string) =>
-      composeActions([click('Edit'), changeInput(newValue), click('Save')]);
+      composeInteractions([click('Edit'), changeInput(newValue), click('Save')]);
 
     it('updates value when pressing Save', () => {
       const { getByTestId } = submitValue(newValue)(renderComponent());
