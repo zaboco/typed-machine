@@ -1,23 +1,21 @@
 {
   "name": "react-fsm",
-  "version": "0.1.0",
-  "description": "",
+  "version": "1.0.0",
+  "description": "Strict Finite State Machine written in TS",
   "main": "src/Fsm",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage"
   },
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^23.3.9",
+    "@types/jest": "23.3.9",
     "@types/react": "16.7.3",
     "jest": "23.6.0",
     "prettier": "1.15.2",
-    "react-testing-library": "5.2.3",
+    "react": "16.6.3",
     "ts-jest": "23.10.4",
-    "typescript": "3.1.6",
-    "react-dom": "^16.6.3",
-    "react": "16.6.3"
+    "typescript": "3.1.6"
   },
   "peerDependencies": {
     "react": ">= 15.0.0"
