@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Machine, renderCurrent, GraphTemplate } from '../Machine';
+import { Machine, currentView, GraphTemplate } from '../Machine';
 
 export type ReactMachine<S extends string, GT extends GraphTemplate<S>> = Machine<
   JSX.Element,
@@ -17,7 +17,7 @@ export class MachineContainer<
   };
 
   render() {
-    return renderCurrent(this.state, newMachine => {
+    return currentView(this.state, newMachine => {
       this.setState(newMachine);
     });
   }

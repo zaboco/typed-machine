@@ -33,7 +33,7 @@ const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): Edi
   graph: {
     Readonly: {
       model: defaultValue,
-      render: (dispatch, model) => (
+      view: (dispatch, model) => (
         <div className="item">
           <span data-testid="readonly" className="readonly">
             {model}
@@ -47,7 +47,7 @@ const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): Edi
     },
     Editing: {
       model: { draft: defaultValue, previous: defaultValue },
-      render: (dispatch, { draft }) => {
+      view: (dispatch, { draft }) => {
         return (
           <div className="item">
             <input
