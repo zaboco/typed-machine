@@ -1,5 +1,5 @@
 {
-  "name": "strict-machine",
+  "name": "typed-machine",
   "version": "1.0.0",
   "description": "Strict Finite State Machine written in TS",
   "main": "src/Machine",
