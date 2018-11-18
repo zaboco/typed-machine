@@ -23,7 +23,7 @@ type EditableTemplate = DefineTemplate<
         SAVE: null;
         DISCARD: null;
       };
-      model: { previous: string; draft: string };
+      model: { original: string; draft: string };
     };
   }
 >;
@@ -42,11 +42,11 @@ const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): Edi
         </div>
       ),
       transitions: {
-        START_EDITING: value => ['Editing', { draft: value, previous: value }],
+        START_EDITING: value => ['Editing', { draft: value, original: value }],
       },
     },
     Editing: {
-      model: { draft: defaultValue, previous: defaultValue },
+      model: { draft: defaultValue, original: defaultValue },
       view: (dispatch, { draft }) => {
         return (
           <div className="item">
@@ -65,14 +65,14 @@ const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): Edi
         );
       },
       transitions: {
-        SAVE: ({ draft, previous }) => {
-          if (draft !== previous) {
+        SAVE: ({ draft, original }) => {
+          if (draft !== original) {
             onChange(draft);
           }
           return ['Readonly', draft];
         },
-        DISCARD: ({ previous }) => ['Readonly', previous],
-        CHANGE_TEXT: ({ previous }, newDraft) => ['Editing', { previous, draft: newDraft }],
+        DISCARD: ({ original }) => ['Readonly', original],
+        CHANGE_TEXT: ({ original }, newDraft) => ['Editing', { original, draft: newDraft }],
       },
     },
   },
