@@ -2,6 +2,8 @@ import * as React from 'react';
 import { MachineContainer, ReactMachine } from '../../src/react/MachineContainer';
 import { DefineTemplate } from '../../src/Machine';
 
+import './EditableItem.css';
+
 type EditableMachine = ReactMachine<EditableState, EditableTemplate>;
 
 export type EditableState = 'Readonly' | 'Editing';
@@ -32,8 +34,10 @@ const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): Edi
     Readonly: {
       model: defaultValue,
       render: (dispatch, model) => (
-        <div>
-          <span data-testid="readonly">{model}</span>
+        <div className="item">
+          <span data-testid="readonly" className="readonly">
+            {model}
+          </span>
           <button onClick={() => dispatch('START_EDITING')}>Edit</button>
         </div>
       ),
@@ -45,7 +49,7 @@ const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): Edi
       model: { draft: defaultValue, previous: defaultValue },
       render: (dispatch, { draft }) => {
         return (
-          <div>
+          <div className="item">
             <input
               data-testid="draft-input"
               type="text"
