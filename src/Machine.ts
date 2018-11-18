@@ -1,13 +1,13 @@
 import { Assert, Second } from './types/helpers';
 import { MessagePayloads, MessageHandlers, Model, DeriveMessage, Dispatch } from './types/Messages';
 
-export function renderCurrent<R, S extends string, GT extends GraphTemplate<S>>(
+export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
   machine: Machine<R, S, GT>,
   onChange: (updatedMachine: Machine<R, S, GT>) => void,
 ): R {
   const node = machine.graph[machine.current];
 
-  return node.render((...message) => {
+  return node.view((...message) => {
     const handler = node.transitions[message[0]];
 
     // Condition needed only when coming from JS. In TS this code is unreachable.
@@ -44,7 +44,7 @@ type Graph<R, S extends string, GT extends GraphTemplate<S>> = {
 type MachineNode<R, CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
   transitions: MessageHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
-  render: (d: Dispatch<DeriveMessage<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
+  view: (d: Dispatch<DeriveMessage<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
 };
 
 // === Templates ===
