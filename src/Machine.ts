@@ -1,5 +1,12 @@
 import { Assert, Second } from './types/helpers';
-import { MessagePayloads, MessageHandlers, Model, DeriveMessage, Dispatch } from './types/Messages';
+import {
+  MessagePayloads,
+  MessageHandlers,
+  Model,
+  DeriveMessage,
+  Dispatch,
+  MessageShape,
+} from './types/Messages';
 
 export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
   machine: Machine<R, S, GT>,
@@ -32,10 +39,13 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
 }
 
 // === Machine ===
-export type Machine<R, S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = {
-  current: S;
-  graph: Graph<R, S, GT>;
-};
+export type Machine<R, S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = Assert<
+  MachineShape,
+  {
+    current: S;
+    graph: Graph<R, S, GT>;
+  }
+>;
 
 type Graph<R, S extends string, GT extends GraphTemplate<S>> = {
   [s in S]: MachineNode<R, GT[s], GT[S]>
@@ -46,6 +56,8 @@ type MachineNode<R, CNT extends NodeTemplate, NT extends NodeTemplate> = {
   transitions: MessageHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
   view: (d: Dispatch<DeriveMessage<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
 };
+
+type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
 
 // === Templates ===
 export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> = Assert<
@@ -72,4 +84,24 @@ type NodeTemplate<S extends string = string> = {
   stateModel: [S, Model];
 };
 
-type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
+// === Type Helpers ===
+
+export type View<M extends MachineShape, S extends M['current']> = M['graph'][S]['view'];
+
+export type Transitions<
+  M extends MachineShape,
+  S extends M['current']
+> = M['graph'][S]['transitions'];
+
+type MachineShape = {
+  current: string;
+  graph: {
+    [s: string]: {
+      model: Model;
+      view: (dispatch: Dispatch<MessageShape>, model: any) => any;
+      transitions: {
+        [mt: string]: (model: any, payload: any) => [string, any];
+      };
+    };
+  };
+};
