@@ -6,7 +6,8 @@
   "types": "dist/Machine.d.ts",
   "scripts": {
     "test": "jest --coverage",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc && mv dist/react/ .",
+    "postpublish": "rm -r react/"
   },
   "keywords": [],
   "license": "MIT",
