@@ -286,15 +286,145 @@ export const EditableItem = (props: EditableItemProps) => (
 );
 ```
 
-## Adapters
-In order to actually do anything useful with a **Machine**, we need an UI implementation, and also some sort of container to hold the state machine, and update its state once a transition is done. Both of these tasks are accomplished by an **Adapter**. Right now, only a React implementation is provided.
-
-### React
-
 ## API
 
 ### Types
 
-### Functions
-   
+##### `DefineTemplate`
+This is a higher order type, that build the Template for the Machine. It takes the State, and a definition type must have the following shape:
+```ts
+Record<string, {
+  transitionPayloads: Record<string, any>;
+  model: any;  
+}>
+```
 
+###### Example:
+```ts
+import { DefineTemplate } from 'typed-machine';
+
+type SimpleState = 'Default';
+
+type SimpleTemplate = DefineTemplate<SimpleState, {
+    Default: {
+      transitionPayloads: {
+        NOOP: null;
+      };
+      model: null;
+    };
+  }
+>;
+```
+##### `Machine`
+This type is at the core of the library. It's a higher order type, taking the View type, a State and a Template:
+```ts
+import { Machine } from 'typed-machine';
+
+type SimpleMachine = Machine<JSX.Element, SimpleState, SimpleTemplate>;
+```
+
+However, type aliases provided by Adapters will be used instead:
+```
+import { ReactMachine } from 'typed-machine/react';
+
+type SimpleMachine = ReactMachine<SimpleState, SimpleTemplate>;
+```
+
+
+##### `View`
+This is an utility type, which allows extracting `view`s as separate functions:
+```ts
+import { View } from 'typed-machine';
+
+const defaultView: View<SimpleMachine, 'Default'> = (dispatch) => (
+  <button onClick={() => dispatch('NOOP')}>Doing nothing</button>
+);
+```
+
+##### `Transitions`
+Similar to `View`, it allows transitions to be defined separately:
+```ts
+import { Transitions } from 'typed-machine';
+
+const defaultTransitions: Transitions<SimpleMachine, 'Default'> = {
+  NOOP: () => ['Default', null],
+};
+```
+
+### Containers
+
+#### React
+```ts
+import { MachineContainer } from 'typed-machine/react';
+
+const simpleMachine: SimpleMachine = {
+  current: 'Default',
+  graph: {
+    Default: {
+      model: null,
+      transitions: defaultTransitions,
+      view: defaultView
+    }
+  }
+}
+
+export const SimpleMachine = () => (
+  <MachineContainer {...simpleMachine} />
+);
+```
+
+## Adapters
+In order to actually do anything useful with a **Machine**, we need an UI implementation, and also some a way to store the State Machine, and update its state once a transition is done. Both of these tasks are accomplished by an **Adapter**. Right now, only a React implementation is provided.
+
+### Developing a new adapter
+The core library exposes a simple function that allows a parent to 1) render the current State and 2) update external state when the Machine internal representation changes. That function has the following signature:
+
+```
+export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
+  machine: Machine<R, S, GT>,
+  onChange: (updatedMachine: Machine<R, S, GT>) => void,
+): R
+```
+
+Here, `R` is the return type for the `view` functions.
+
+There are two things an adapter must expose:
+1. A concrete `Machine` type (basically specifying the `view` return value - `R` from above). For example, the React Adapter exposes:
+```ts
+type ReactMachine<S extends string, GT extends GraphTemplate<S>> = Machine<JSX.Element, S, GT>
+```
+
+2. Some sort of "container" for the Machine. In the React Adapter, it's actually called just that: `MachineContainer` and [its implementation](./src/react/MachineContainer.tsx) is really simple. The gist of it is the `render` function:
+```ts
+render() {
+  return currentView(this.state, newMachine => {
+    this.setState(newMachine);
+  });
+}
+```
+
+## TODO
+There are still a lot of features to add, in order to make this library production ready:
+- [ ] Investigate transition guards
+- [ ] Handle side effects, like fetch requests.
+- [ ] Nested Machines - find a good way to scale.
+- [ ] Pluggable addons/middlewares (e.g. History with undo/redo support).
+- [ ] _Nice to have_ Developer tooling (time travel debugging, etc.)
+- [ ] _Nice to have_ React hook.
+- [ ] _Nice to have_ Eslint plugin (e.g. identify unreachable States).
+
+## Contributing
+
+In case you're interested in this project, and you would like to contribute, there are some things to be done.
+
+### New Adapters
+Right now only the React adapter is provided, but it should be fairly easy to add new ones for other UI libraries such as Vue, Angular, etc. You can read the section about [developing a new adapter](#developing-a-new-adapter) and see [the React implementation](./src/react/MachineContainer.tsx) for reference.
+
+### Other ideas
+If you have other ideas or want to tackle one of the TODOs from above, let's start a discussion. Submit an issue with `[Idea]` of `[Feature]` "tag" and we'll start from there.
+
+## Acknowledgments
+This library borrows from a few sources:
+- The main ideas (and some names) come from the [The Elm Architecture](https://guide.elm-lang.org/architecture/) and the [Elm language](https://elm-lang.org/) in general.
+- Also, Redux was an inspiration (Redux is also [inspired by Elm](https://redux.js.org/introduction/priorart#elm), by the way).
+- The [xstate](https://xstate.js.org/docs/) library served as a reference for implementing Finite State Machines in JavaScript.
