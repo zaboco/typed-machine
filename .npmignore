@@ -1,0 +1,9 @@
+.*
+__mocks__/
+assets/
+coverage/
+examples/
+src/
+dist/types
+jest.config.js
+tsconfig.json
