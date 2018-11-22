@@ -150,6 +150,8 @@ At its core, the library keeps the view layer abstract, and it uses **Adapters**
 #### The Machine Type
 Since we're using the React Adapter, we'll use the `ReactMachine` type:
 ```ts
+import { ReactMachine } from 'typed-machine/react';
+
 type EditableMachine = ReactMachine<EditableState, EditableTemplate>;
 ```
 
@@ -158,6 +160,8 @@ As we said before, transitions are how the Machine gets to a new States, and upd
 
 In our case, we'll have something like:
 ```ts
+import { Transitions } from 'typed-machine';
+
 const readonlyTransitions: Transitions<EditableMachine, 'Readonly'> = {
   START_EDITING: value => ['Editing', { draft: value, original: value }]
 }
@@ -186,6 +190,8 @@ Where the types are:
 Now that we've setup all the wiring, we need to actually show something to the user. For that, we'll use a `view` function for each State, which will display the model associated with that State, and also dispatch messages back to the Machine. Since we're using the React Adapter, each `view` must return a `JSX.Element`.
 
 ```ts
+import { View } from 'typed-machine';
+
 const readonlyView: View<EditableMachine, 'Readonly'> = (dispatch, model) => (
   <div>
     {model}
@@ -249,6 +255,8 @@ const editableMachine: EditableMachine = {
 
 And, in order to integrate it in the React application, we wrap the machine instance in a `<MachineContainer />`, provided by the React Adapter:
 ```ts
+import { MachineContainer } from 'typed-machine/react';
+
 const EditableItem = () => (
   <MachineContainer {...editableMachine} />
 );
