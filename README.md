@@ -1,12 +1,50 @@
 # Typed Machine
-This library implements a **strict** model of an event-driven **Finite State Machine**. Its strictness is given 
-by the Typescript type definitions, so it is best used in Typescript applications, to benefit from the type 
-restrictions.
+This library implements a **strict** model of an event-driven **Finite State Machine**. Its strictness is given by the Typescript type definitions, so it is best used in Typescript applications, to benefit from the type restrictions.
 
 >__WARNING!__ The project is in early stages, so the API might change frequently.
 
+<!-- MarkdownTOC levels="1,2,3,4" -->
+
+- [Getting started](#getting-started)
+- [Tutorial](#tutorial)
+  - [The example - an Editable Item](#the-example---an-editable-item)
+  - [Setup](#setup)
+    - [States](#states)
+    - [Transitions and Messages](#transitions-and-messages)
+    - [Models](#models)
+    - [Message Payloads](#message-payloads)
+    - [Wrapping up - Defining the Template](#wrapping-up---defining-the-template)
+  - [Defining the Machine](#defining-the-machine)
+    - [Choosing a renderer](#choosing-a-renderer)
+    - [The Machine Type](#the-machine-type)
+    - [The transitions](#the-transitions)
+    - [The view](#the-view)
+    - [Putting it all together](#putting-it-all-together)
+  - [Making it reusable](#making-it-reusable)
+    - [Custom initial value](#custom-initial-value)
+    - [Add an onChange Callback](#add-an-onchange-callback)
+    - [Wrapping up - A reusable component](#wrapping-up---a-reusable-component)
+- [API](#api)
+  - [Types](#types)
+    - [`DefineTemplate`](#definetemplate)
+    - [`Machine`](#machine)
+    - [`View`](#view)
+    - [`Transitions`](#transitions)
+  - [Containers](#containers)
+    - [React](#react)
+- [Adapters](#adapters)
+  - [Developing a new adapter](#developing-a-new-adapter)
+- [TODO](#todo)
+- [Contributing](#contributing)
+  - [New Adapters](#new-adapters)
+  - [Other ideas](#other-ideas)
+- [Acknowledgments](#acknowledgments)
+
+<!-- /MarkdownTOC -->
+
+
 ## Getting started
-```
+```sh
 npm i typed-machine
 ```
 
@@ -210,7 +248,7 @@ const editableMachine: EditableMachine = {
 ```
 
 And, in order to integrate it in the React application, we wrap the machine instance in a `<MachineContainer />`, provided by the React Adapter:
-```
+```ts
 const EditableItem = () => (
   <MachineContainer {...editableMachine} />
 );
@@ -290,8 +328,8 @@ export const EditableItem = (props: EditableItemProps) => (
 
 ### Types
 
-##### `DefineTemplate`
-This is a higher order type, that build the Template for the Machine. It takes the State, and a definition type must have the following shape:
+#### `DefineTemplate`
+This is a higher order type, that build the Template for the Machine. It takes the State, and a definition type that must have the following shape:
 ```ts
 Record<string, {
   transitionPayloads: Record<string, any>;
@@ -299,7 +337,7 @@ Record<string, {
 }>
 ```
 
-###### Example:
+Example:
 ```ts
 import { DefineTemplate } from 'typed-machine';
 
@@ -315,7 +353,7 @@ type SimpleTemplate = DefineTemplate<SimpleState, {
   }
 >;
 ```
-##### `Machine`
+#### `Machine`
 This type is at the core of the library. It's a higher order type, taking the View type, a State and a Template:
 ```ts
 import { Machine } from 'typed-machine';
@@ -324,14 +362,14 @@ type SimpleMachine = Machine<JSX.Element, SimpleState, SimpleTemplate>;
 ```
 
 However, type aliases provided by Adapters will be used instead:
-```
+```ts
 import { ReactMachine } from 'typed-machine/react';
 
 type SimpleMachine = ReactMachine<SimpleState, SimpleTemplate>;
 ```
 
 
-##### `View`
+#### `View`
 This is an utility type, which allows extracting `view`s as separate functions:
 ```ts
 import { View } from 'typed-machine';
@@ -341,7 +379,7 @@ const defaultView: View<SimpleMachine, 'Default'> = (dispatch) => (
 );
 ```
 
-##### `Transitions`
+#### `Transitions`
 Similar to `View`, it allows transitions to be defined separately:
 ```ts
 import { Transitions } from 'typed-machine';
@@ -379,7 +417,7 @@ In order to actually do anything useful with a **Machine**, we need an UI implem
 ### Developing a new adapter
 The core library exposes a simple function that allows a parent to 1) render the current State and 2) update external state when the Machine internal representation changes. That function has the following signature:
 
-```
+```ts
 export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
   machine: Machine<R, S, GT>,
   onChange: (updatedMachine: Machine<R, S, GT>) => void,
@@ -394,7 +432,7 @@ There are two things an adapter must expose:
 type ReactMachine<S extends string, GT extends GraphTemplate<S>> = Machine<JSX.Element, S, GT>
 ```
 
-2. Some sort of "container" for the Machine. In the React Adapter, it's actually called just that: `MachineContainer` and [its implementation](./src/react/MachineContainer.tsx) is really simple. The gist of it is the `render` function:
+2. Some sort of "container" for the Machine. In the React Adapter, it's actually called just that: `MachineContainer` and [its implementation](src/react/MachineContainer.tsx) is really simple. The gist of it is the `render` function:
 ```ts
 render() {
   return currentView(this.state, newMachine => {
@@ -418,7 +456,7 @@ There are still a lot of features to add, in order to make this library producti
 In case you're interested in this project, and you would like to contribute, there are some things to be done.
 
 ### New Adapters
-Right now only the React adapter is provided, but it should be fairly easy to add new ones for other UI libraries such as Vue, Angular, etc. You can read the section about [developing a new adapter](#developing-a-new-adapter) and see [the React implementation](./src/react/MachineContainer.tsx) for reference.
+Right now only the React adapter is provided, but it should be fairly easy to add new ones for other UI libraries such as Vue, Angular, etc. You can read the section about [developing a new adapter](#developing-a-new-adapter) and see [the React implementation](src/react/MachineContainer.tsx) for reference.
 
 ### Other ideas
 If you have other ideas or want to tackle one of the TODOs from above, let's start a discussion. Submit an issue with `[Idea]` of `[Feature]` "tag" and we'll start from there.
