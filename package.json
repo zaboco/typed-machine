@@ -1,6 +1,6 @@
 {
   "name": "typed-machine",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Strict Finite State Machine written in TS",
   "main": "core/Machine.js",
   "types": "core/Machine.d.ts",
