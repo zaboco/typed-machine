@@ -1,5 +1,5 @@
 import { DefineTemplate, Machine, currentView } from './Machine';
-import { DeriveMessage, Dispatch } from './types/Messages';
+import { DeriveMessage, Dispatch } from '../types/Messages';
 
 type TestMachine = Machine<TestDispatch, TestState, TestTemplate>;
 

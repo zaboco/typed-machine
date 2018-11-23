@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MachineContainer, ReactMachine } from '../../src/react/MachineContainer';
-import { DefineTemplate, Transitions, View } from '../../src/Machine';
+import { DefineTemplate, Transitions, View } from '../../src/core/Machine';
 
 import './EditableItem.css';
 

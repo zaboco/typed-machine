@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Machine, currentView, GraphTemplate } from '../Machine';
+import { Machine, currentView, GraphTemplate } from '../core/Machine';
 
 export type ReactMachine<S extends string, GT extends GraphTemplate<S>> = Machine<
   JSX.Element,

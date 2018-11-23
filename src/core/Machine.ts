@@ -1,4 +1,4 @@
-import { Assert, Second } from './types/helpers';
+import { Assert, Second } from '../types/helpers';
 import {
   MessagePayloads,
   MessageHandlers,
@@ -6,7 +6,7 @@ import {
   DeriveMessage,
   Dispatch,
   MessageShape,
-} from './types/Messages';
+} from '../types/Messages';
 
 export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
   machine: Machine<R, S, GT>,

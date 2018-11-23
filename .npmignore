@@ -4,6 +4,6 @@ assets/
 coverage/
 examples/
 src/
-dist/types
+dist/
 jest.config.js
 tsconfig.json

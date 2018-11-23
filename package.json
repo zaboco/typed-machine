@@ -2,12 +2,12 @@
   "name": "typed-machine",
   "version": "0.2.0",
   "description": "Strict Finite State Machine written in TS",
-  "main": "dist/Machine.js",
-  "types": "dist/Machine.d.ts",
+  "main": "core/Machine.js",
+  "types": "core/Machine.d.ts",
   "scripts": {
     "test": "jest --coverage",
-    "prepublishOnly": "tsc && mv dist/react/ .",
-    "postpublish": "rm -r react/"
+    "prepublishOnly": "tsc && mv dist/{react,core}/ .",
+    "postpublish": "rm -r {react,core}/"
   },
   "keywords": [],
   "license": "MIT",
