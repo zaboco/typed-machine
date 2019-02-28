@@ -1,4 +1,4 @@
-import { ValueOf, Assert } from './helpers';
+import { Assert, ValueOf } from './helpers';
 
 export type MessagePayloads<P = Model, T extends string = string> = { [t in T]: P };
 export type Model = Object | string | number | boolean | null;

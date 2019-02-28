@@ -1,8 +1,7 @@
-import { cleanup, render, RenderResult } from 'react-testing-library';
 import * as React from 'react';
-
-import { EditableItemProps, EditableItem } from './EditableItem';
-import { runSteps, click, composeSteps, inputHandlerByValue } from './__test__helpers__/Steps';
+import { cleanup, render, RenderResult } from 'react-testing-library';
+import { EditableItem, EditableItemProps } from './EditableItem';
+import { click, composeSteps, inputHandlerByValue, runSteps } from './__test__helpers__/Steps';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';

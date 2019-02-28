@@ -1,53 +1,9 @@
 import * as React from 'react';
-import { MachineContainer, ReactMachine } from '../../src/react/MachineContainer';
-import { DefineTemplate, Transitions, View } from '../../src/core/Machine';
-
+import { MachineContainer, ReactView } from '../../src/react/MachineContainer';
+import { EditableMachineOptions, EditableTemplate, makeEditableMachine } from './EditableMachine';
 import './EditableItem.css';
 
-export type EditableState = 'Readonly' | 'Editing';
-
-type EditableTemplate = DefineTemplate<
-  EditableState,
-  {
-    Readonly: {
-      transitionPayloads: {
-        START_EDITING: null;
-      };
-      model: string;
-    };
-    Editing: {
-      transitionPayloads: {
-        CHANGE_TEXT: string;
-        SAVE: null;
-        DISCARD: null;
-      };
-      model: { original: string; draft: string };
-    };
-  }
->;
-
-type EditableMachine = ReactMachine<EditableState, EditableTemplate>;
-
-const readonlyTransitions: Transitions<EditableMachine, 'Readonly'> = {
-  START_EDITING: value => ['Editing', { draft: value, original: value }],
-};
-
-function makeEditingTransitions(
-  onChange: EditableItemProps['onChange'],
-): Transitions<EditableMachine, 'Editing'> {
-  return {
-    SAVE: ({ draft, original }) => {
-      if (draft !== original) {
-        onChange(draft);
-      }
-      return ['Readonly', draft];
-    },
-    DISCARD: ({ original }) => ['Readonly', original],
-    CHANGE_TEXT: ({ original }, newDraft) => ['Editing', { original, draft: newDraft }],
-  };
-}
-
-const readonlyView: View<EditableMachine, 'Readonly'> = (dispatch, model) => (
+const readonlyView: ReactView<'Readonly', EditableTemplate> = (dispatch, model) => (
   <div className="item">
     <span data-testid="readonly" className="readonly">
       {model}
@@ -56,7 +12,7 @@ const readonlyView: View<EditableMachine, 'Readonly'> = (dispatch, model) => (
   </div>
 );
 
-const editingView: View<EditableMachine, 'Editing'> = (dispatch, { draft }) => {
+const editingView: ReactView<'Editing', EditableTemplate> = (dispatch, { draft }) => {
   return (
     <div className="item">
       <input
@@ -74,27 +30,14 @@ const editingView: View<EditableMachine, 'Editing'> = (dispatch, { draft }) => {
   );
 };
 
-const makeEditableMachine = ({ defaultValue, onChange }: EditableItemProps): EditableMachine => ({
-  current: 'Readonly',
-  graph: {
-    Readonly: {
-      model: defaultValue,
-      transitions: readonlyTransitions,
-      view: readonlyView,
-    },
-    Editing: {
-      model: { draft: defaultValue, original: defaultValue },
-      transitions: makeEditingTransitions(onChange),
-      view: editingView,
-    },
-  },
-});
-
-export type EditableItemProps = {
-  defaultValue: string;
-  onChange: (s: string) => void;
-};
+export type EditableItemProps = EditableMachineOptions;
 
 export const EditableItem = (props: EditableItemProps) => (
-  <MachineContainer {...makeEditableMachine(props)} />
+  <MachineContainer
+    machine={makeEditableMachine(props)}
+    views={{
+      Readonly: readonlyView,
+      Editing: editingView,
+    }}
+  />
 );
