@@ -24,11 +24,11 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
       return;
     }
 
-    const [newState, newModel] = handler(node.model, message[1]);
+    const [newState, newModel] = handler(node.model, message[1]!);
     const newMachine = {
-      current: newState,
+      current: newState as S,
       graph: Object.assign({}, machine.graph, {
-        [newState]: Object.assign({}, machine.graph[newState], {
+        [newState]: Object.assign({}, machine.graph[newState as S], {
           model: newModel,
         }),
       }),
