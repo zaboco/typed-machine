@@ -2,20 +2,27 @@ import { DefineTemplate, Machine, Transitions } from '../../src/core/Machine';
 
 export type EditableState = 'Readonly' | 'Editing';
 
+export enum Msg {
+  START_EDITING = 'START_EDITING',
+  CHANGE_TEXT = 'CHANGE_TEXT',
+  SAVE = 'SAVE',
+  DISCARD = 'DISCARD',
+}
+
 export type EditableTemplate = DefineTemplate<
   EditableState,
   {
     Readonly: {
       transitionPayloads: {
-        START_EDITING: null;
+        [Msg.START_EDITING]: null;
       };
       model: string;
     };
     Editing: {
       transitionPayloads: {
-        CHANGE_TEXT: string;
-        SAVE: null;
-        DISCARD: null;
+        [Msg.CHANGE_TEXT]: string;
+        [Msg.SAVE]: null;
+        [Msg.DISCARD]: null;
       };
       model: { original: string; draft: string };
     };

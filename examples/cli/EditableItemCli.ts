@@ -10,6 +10,7 @@ import {
   EditableMachineOptions,
   EditableTemplate,
   makeEditableMachine,
+  Msg,
 } from '../shared/EditableMachine';
 import { ReactView } from '../../src/react';
 import readline from 'readline';
@@ -30,7 +31,7 @@ const readonlyView: CliView<'Readonly', EditableTemplate> = (dispatch, model) =>
         return;
       }
       if (str.toLowerCase() === 'e') {
-        dispatch('START_EDITING');
+        dispatch(Msg.START_EDITING);
         moveCursorAtTheEnd(model);
       } else if (str.toLowerCase() === 'q') {
         quit();
@@ -41,7 +42,7 @@ const readonlyView: CliView<'Readonly', EditableTemplate> = (dispatch, model) =>
 
 const editingView: CliView<'Editing', EditableTemplate> = (dispatch, { draft }) => {
   const updateText = (newText: string) => {
-    dispatch('CHANGE_TEXT', newText);
+    dispatch(Msg.CHANGE_TEXT, newText);
     moveCursorAtTheEnd(newText);
   };
 
@@ -54,9 +55,9 @@ const editingView: CliView<'Editing', EditableTemplate> = (dispatch, { draft }) 
     `,
     onKeyPress: (str, key) => {
       if (key.name === KeyName.Enter) {
-        dispatch('SAVE');
+        dispatch(Msg.SAVE);
       } else if (key.name === KeyName.Escape) {
-        dispatch('DISCARD');
+        dispatch(Msg.DISCARD);
       } else if (key.name === KeyName.Backspace) {
         updateText(`${draft.slice(0, -1)}`);
       } else if (str) {

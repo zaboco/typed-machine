@@ -3,6 +3,7 @@ import { MachineContainer, ReactView } from '../../src/react';
 import {
   EditableMachineOptions,
   EditableTemplate,
+  Msg,
   makeEditableMachine,
 } from '../shared/EditableMachine';
 import '../shared/EditableItem.css';
@@ -12,7 +13,7 @@ const readonlyView: ReactView<'Readonly', EditableTemplate> = (dispatch, model) 
     <span data-testid="readonly" className="readonly">
       {model}
     </span>
-    <button onClick={() => dispatch('START_EDITING')}>Edit</button>
+    <button onClick={() => dispatch(Msg.START_EDITING)}>Edit</button>
   </div>
 );
 
@@ -25,11 +26,11 @@ const editingView: ReactView<'Editing', EditableTemplate> = (dispatch, { draft }
         value={draft}
         autoFocus={true}
         onChange={ev => {
-          dispatch('CHANGE_TEXT', ev.target.value);
+          dispatch(Msg.CHANGE_TEXT, ev.target.value);
         }}
       />
-      <button onClick={() => dispatch('SAVE')}>Save</button>
-      <button onClick={() => dispatch('DISCARD')}>Cancel</button>
+      <button onClick={() => dispatch(Msg.SAVE)}>Save</button>
+      <button onClick={() => dispatch(Msg.DISCARD)}>Cancel</button>
     </div>
   );
 };
