@@ -14,6 +14,7 @@
   "repository": "https://github.com/zaboco/typed-machine.git",
   "devDependencies": {
     "@types/jest": "23.3.9",
+    "@types/node": "^11.10.4",
     "@types/react": "16.7.3",
     "jest": "23.6.0",
     "prettier": "1.15.2",

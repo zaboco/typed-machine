@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MachineContainer, ReactView } from '../../src/react/MachineContainer';
+import { MachineContainer, ReactView } from '../../src/react';
 import { EditableMachineOptions, EditableTemplate, makeEditableMachine } from './EditableMachine';
 import './EditableItem.css';
 

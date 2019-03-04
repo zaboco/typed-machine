@@ -1,0 +1,20 @@
+{
+  "name": "typed-machine-cli-example",
+  "private": true,
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "ts-node": "8.0.2"
+  },
+  "dependencies": {
+    "colorette": "1.0.7"
+  },
+  "license": "MIT"
+}
