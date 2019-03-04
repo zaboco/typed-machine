@@ -10,7 +10,7 @@ import {
   EditableMachineOptions,
   EditableTemplate,
   makeEditableMachine,
-} from '../react/EditableMachine';
+} from '../shared/EditableMachine';
 import { ReactView } from '../../src/react';
 import readline from 'readline';
 

@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { MachineContainer, ReactView } from '../../src/react';
-import { EditableMachineOptions, EditableTemplate, makeEditableMachine } from './EditableMachine';
+import {
+  EditableMachineOptions,
+  EditableTemplate,
+  makeEditableMachine,
+} from '../shared/EditableMachine';
 import './EditableItem.css';
 
 const readonlyView: ReactView<'Readonly', EditableTemplate> = (dispatch, model) => (
