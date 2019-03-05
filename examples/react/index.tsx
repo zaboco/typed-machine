@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { EditableItem } from './EditableItem';
 
-import './index.css';
+import '../shared/index.css';
 
 class App extends React.Component {
   render() {

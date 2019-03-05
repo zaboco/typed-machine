@@ -5,7 +5,7 @@ import {
   EditableTemplate,
   makeEditableMachine,
 } from '../shared/EditableMachine';
-import './EditableItem.css';
+import '../shared/EditableItem.css';
 
 const readonlyView: ReactView<'Readonly', EditableTemplate> = (dispatch, model) => (
   <div className="item">
