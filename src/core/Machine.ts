@@ -95,6 +95,8 @@ export type Transitions<
   S extends M['current']
 > = M['graph'][S]['transitions'];
 
+export type Model<M extends MachineShape, S extends M['current']> = M['graph'][S]['model'];
+
 type MachineShape = {
   current: string;
   graph: {
