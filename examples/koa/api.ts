@@ -1,4 +1,6 @@
 import Koa, { Middleware, ParameterizedContext } from 'koa';
+// @ts-ignore
+import cors from '@koa/cors';
 import Router, { IRouterParamContext } from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import { currentView, Machine, Model, View } from '../../src/core/Machine';
@@ -13,11 +15,11 @@ const readonlyView: View<RoutesMiddleware, 'Readonly', EditableTemplate> = (disp
     .get('/', ctx => {
       ctx.body = {
         state: 'Readonly',
-        model: model.value,
+        model,
         links: [
           {
             rel: 'START_EDITING',
-            link: '/edit',
+            href: '/edit',
           },
         ],
       };
@@ -32,7 +34,7 @@ const readonlyView: View<RoutesMiddleware, 'Readonly', EditableTemplate> = (disp
         links: [
           {
             rel: 'START_EDITING',
-            link: '/edit',
+            href: '/edit',
           },
         ],
       };
@@ -45,20 +47,21 @@ const editingView: View<RoutesMiddleware, 'Editing', EditableTemplate> = (dispat
     .get('/', ctx => {
       ctx.body = {
         state: 'Editing',
-        model: model.original,
+        model,
         links: [
           {
             rel: 'SAVE',
-            link: '/save',
+            href: '/save',
           },
           {
             rel: 'DISCARD',
-            link: '/discard',
+            href: '/discard',
           },
         ],
       };
     })
     .post('/save', ctx => {
+      console.log(ctx.request.body, `${ctx.request.body}`);
       dispatch('SAVE', ctx.request.body.value);
       ctx.redirect('/');
     })
@@ -72,11 +75,11 @@ const editingView: View<RoutesMiddleware, 'Editing', EditableTemplate> = (dispat
         links: [
           {
             rel: 'SAVE',
-            link: '/save',
+            href: '/save',
           },
           {
             rel: 'DISCARD',
-            link: '/discard',
+            href: '/discard',
           },
         ],
       };
@@ -108,9 +111,12 @@ function mountRoutes(machine: EditableMachine) {
 
 mountRoutes(initialMachine);
 
-app.use(bodyParser()).use((ctx: ParameterizedContext<{}, IRouterParamContext>, next) => {
-  routes(ctx, next);
-});
+app
+  .use(cors())
+  .use(bodyParser())
+  .use((ctx: ParameterizedContext<{}, IRouterParamContext>, next) => {
+    routes(ctx, next);
+  });
 
 const PORT = 3000;
 app.listen(PORT, () => {
