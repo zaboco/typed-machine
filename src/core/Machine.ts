@@ -1,20 +1,20 @@
 import { Assert, Second } from '../types/helpers';
 import {
-  MessagePayloads,
-  MessageHandlers,
-  Model,
   DeriveMessage,
   Dispatch,
-  MessageShape,
+  MessageHandlers,
+  MessagePayloads,
+  Model,
 } from '../types/Messages';
 
 export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
-  machine: Machine<R, S, GT>,
-  onChange: (updatedMachine: Machine<R, S, GT>) => void,
+  machine: Machine<S, GT>,
+  views: Views<R, S, GT>,
+  onChange: (updatedMachine: Machine<S, GT>) => void,
 ): R {
   const node = machine.graph[machine.current];
 
-  return node.view((...message) => {
+  return views[machine.current]((...message) => {
     const handler = node.transitions[message[0]];
 
     // Condition needed only when coming from JS. In TS this code is unreachable.
@@ -24,11 +24,11 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
       return;
     }
 
-    const [newState, newModel] = handler(node.model, message[1]);
+    const [newState, newModel] = handler(node.model, message[1]!);
     const newMachine = {
-      current: newState,
+      current: newState as S,
       graph: Object.assign({}, machine.graph, {
-        [newState]: Object.assign({}, machine.graph[newState], {
+        [newState]: Object.assign({}, machine.graph[newState as S], {
           model: newModel,
         }),
       }),
@@ -39,22 +39,19 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
 }
 
 // === Machine ===
-export type Machine<R, S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = Assert<
+export type Machine<S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = Assert<
   MachineShape,
   {
     current: S;
-    graph: Graph<R, S, GT>;
+    graph: Graph<S, GT>;
   }
 >;
 
-type Graph<R, S extends string, GT extends GraphTemplate<S>> = {
-  [s in S]: MachineNode<R, GT[s], GT[S]>
-};
+type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: MachineNode<GT[s], GT[S]> };
 
-type MachineNode<R, CNT extends NodeTemplate, NT extends NodeTemplate> = {
+type MachineNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
   model: GetModel<CNT>;
   transitions: MessageHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
-  view: (d: Dispatch<DeriveMessage<CNT['transitionPayloads']>>, m: GetModel<CNT>) => R;
 };
 
 type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
@@ -86,19 +83,25 @@ type NodeTemplate<S extends string = string> = {
 
 // === Type Helpers ===
 
-export type View<M extends MachineShape, S extends M['current']> = M['graph'][S]['view'];
+export type Views<R, S extends string, GT extends GraphTemplate<S>> = { [s in S]: View<R, s, GT> };
+
+export type View<R, S extends string, GT extends GraphTemplate<S>> = (
+  d: Dispatch<DeriveMessage<GT[S]['transitionPayloads']>>,
+  m: GetModel<GT[S]>,
+) => R;
 
 export type Transitions<
   M extends MachineShape,
   S extends M['current']
 > = M['graph'][S]['transitions'];
 
+export type Model<M extends MachineShape, S extends M['current']> = M['graph'][S]['model'];
+
 type MachineShape = {
   current: string;
   graph: {
     [s: string]: {
       model: Model;
-      view: (dispatch: Dispatch<MessageShape>, model: any) => any;
       transitions: {
         [mt: string]: (model: any, payload: any) => [string, any];
       };

@@ -14,12 +14,12 @@
   "repository": "https://github.com/zaboco/typed-machine.git",
   "devDependencies": {
     "@types/jest": "23.3.9",
+    "@types/node": "^11.10.4",
     "@types/react": "16.7.3",
     "jest": "23.6.0",
     "prettier": "1.15.2",
-    "react": "16.6.3",
     "ts-jest": "23.10.4",
-    "typescript": "3.1.6"
+    "typescript": "3.3.3"
   },
   "peerDependencies": {
     "react": ">= 15.0.0"
@@ -27,5 +27,9 @@
   "engines": {
     "npm": ">= 5.6.0",
     "node": ">= 8.11.3"
+  },
+  "dependencies": {
+    "vue": "2.6.8",
+    "react": "16.6.3"
   }
 }

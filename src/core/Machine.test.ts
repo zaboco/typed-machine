@@ -1,7 +1,7 @@
-import { DefineTemplate, Machine, currentView } from './Machine';
 import { DeriveMessage, Dispatch } from '../types/Messages';
+import { currentView, DefineTemplate, Machine, Views } from './Machine';
 
-type TestMachine = Machine<TestDispatch, TestState, TestTemplate>;
+type TestMachine = Machine<TestState, TestTemplate>;
 
 type TestState = 'StateB' | 'StateA';
 
@@ -29,6 +29,11 @@ type TestTemplate = DefineTemplate<
   }
 >;
 
+const mockViews: Views<TestDispatch, TestState, TestTemplate> = {
+  StateA: dispatch => dispatch,
+  StateB: dispatch => dispatch,
+};
+
 const machineInStateA: TestMachine = {
   current: 'StateA',
   graph: {
@@ -38,14 +43,12 @@ const machineInStateA: TestMachine = {
         GO_TO_B: (model, text) => ['StateB', `Got text ${text} and number ${model}`],
         ACCUMULATE_IN_A: (model, amount) => ['StateA', model + amount],
       },
-      view: dispatch => dispatch,
     },
     StateB: {
       model: '',
       transitions: {
         GO_TO_A: () => ['StateA', 0],
       },
-      view: dispatch => dispatch,
     },
   },
 };
@@ -84,7 +87,7 @@ function trigger<A extends TestMessage>(
 ): Promise<TestMachine> {
   return new Promise((resolve, reject) => {
     try {
-      const triggerDispatch = currentView(machine, newMachine => {
+      const triggerDispatch = currentView(machine, mockViews, newMachine => {
         if (callback) {
           callback(getStateModel(newMachine));
         }
