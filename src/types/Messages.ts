@@ -1,7 +1,7 @@
 import { Assert, ValueOf } from './helpers';
 
-export type MessagePayloads<P = Model, T extends string = string> = { [t in T]: P };
-export type Model = Object | string | number | boolean | null;
+export type MessagePayloads<P = ModelShape, T extends string = string> = { [t in T]: P };
+export type ModelShape = Object | string | number | boolean | null;
 
 export type MessageHandlers<R, M, MP extends MessagePayloads = MessagePayloads> = {
   [t in keyof MP]: (m: M, p: MP[t]) => R
