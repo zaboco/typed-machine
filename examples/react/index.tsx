@@ -11,6 +11,7 @@ import {
   EditableListTemplate,
   makeEditableListMachine,
 } from './list/EditableListMachine';
+import { BugComponent } from './nested/BugComponent';
 
 type AppState = {
   items: string[];
@@ -24,6 +25,8 @@ class App extends React.Component<{}, AppState> {
   render() {
     return (
       <div className="app">
+        <h1 className="title">Bug</h1>
+        <BugComponent name="Typed-machine fails" />
         <h1 className="title">Editable Item</h1>
         <EditableItem
           defaultValue="Foo"
