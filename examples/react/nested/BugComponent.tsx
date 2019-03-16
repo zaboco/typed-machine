@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { MachineContainer, ReactViews } from '../../../src/react';
 import {
-  archivableMachime,
+  ArchivableMachine,
   ArchivableState,
   ArchivableTemplate,
   bugMachine,
@@ -10,9 +10,9 @@ import {
 } from './BugMachine';
 import './BugComponent.css';
 
-const ArchivableComponent = (props: { name: string }) => (
+const ArchivableComponent = (props: { name: string; archivableMachine: ArchivableMachine }) => (
   <MachineContainer
-    machine={archivableMachime}
+    machine={props.archivableMachine}
     views={
       {
         Unarchived: dispatch => (
@@ -43,9 +43,9 @@ export const BugComponent = (props: { name: string }) => (
             <button onClick={() => dispatch('RESOLVE')}>Resolve</button>
           </div>
         ),
-        Closed: dispatch => (
+        Closed: (dispatch, archivableMachine) => (
           <div className="bug-row">
-            <ArchivableComponent name={props.name} />
+            <ArchivableComponent name={props.name} archivableMachine={archivableMachine} />
             <button onClick={() => dispatch('REOPEN')}>Reopen</button>
           </div>
         ),

@@ -16,7 +16,7 @@ export type BugTemplate = DefineTemplate<
       transitionPayloads: {
         REOPEN: null;
       };
-      model: null;
+      model: ArchivableMachine;
     };
   }
 >;
@@ -42,25 +42,7 @@ export type ArchivableTemplate = DefineTemplate<
 export type BugMachine = Machine<BugState, BugTemplate>;
 export type ArchivableMachine = Machine<ArchivableState, ArchivableTemplate>;
 
-export const bugMachine: BugMachine = {
-  current: 'Open',
-  graph: {
-    Open: {
-      model: null,
-      transitions: {
-        RESOLVE: () => ['Closed', null],
-      },
-    },
-    Closed: {
-      model: null,
-      transitions: {
-        REOPEN: () => ['Open', null],
-      },
-    },
-  },
-};
-
-export const archivableMachime: ArchivableMachine = {
+export const archivableMachine: ArchivableMachine = {
   current: 'Unarchived',
   graph: {
     Unarchived: {
@@ -73,6 +55,24 @@ export const archivableMachime: ArchivableMachine = {
       model: null,
       transitions: {
         RESTORE: () => ['Unarchived', null],
+      },
+    },
+  },
+};
+
+export const bugMachine: BugMachine = {
+  current: 'Open',
+  graph: {
+    Open: {
+      model: null,
+      transitions: {
+        RESOLVE: () => ['Closed', archivableMachine],
+      },
+    },
+    Closed: {
+      model: archivableMachine,
+      transitions: {
+        REOPEN: () => ['Open', null],
       },
     },
   },
