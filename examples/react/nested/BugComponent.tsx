@@ -1,7 +1,36 @@
 import * as React from 'react';
 import { MachineContainer, ReactViews } from '../../../src/react';
-import { bugMachine, BugState, BugTemplate } from './BugMachine';
+import {
+  archivableMachime,
+  ArchivableState,
+  ArchivableTemplate,
+  bugMachine,
+  BugState,
+  BugTemplate,
+} from './BugMachine';
 import './BugComponent.css';
+
+const ArchivableComponent = (props: { name: string }) => (
+  <MachineContainer
+    machine={archivableMachime}
+    views={
+      {
+        Unarchived: dispatch => (
+          <div className="bug-row">
+            <div style={{ color: 'green' }}>{props.name}</div>
+            <button onClick={() => dispatch('ARCHIVE')}>Archive</button>
+          </div>
+        ),
+        Archived: dispatch => (
+          <div className="bug-row">
+            <div style={{ color: 'gray', fontStyle: 'italic' }}>{props.name}</div>
+            <button onClick={() => dispatch('RESTORE')}>Restore</button>
+          </div>
+        ),
+      } as ReactViews<ArchivableState, ArchivableTemplate>
+    }
+  />
+);
 
 export const BugComponent = (props: { name: string }) => (
   <MachineContainer
@@ -14,17 +43,9 @@ export const BugComponent = (props: { name: string }) => (
             <button onClick={() => dispatch('RESOLVE')}>Resolve</button>
           </div>
         ),
-        'Closed.Unarchived': dispatch => (
+        Closed: dispatch => (
           <div className="bug-row">
-            <div style={{ color: 'green' }}>{props.name}</div>
-            <button onClick={() => dispatch('ARCHIVE')}>Archive</button>
-            <button onClick={() => dispatch('REOPEN')}>Reopen</button>
-          </div>
-        ),
-        'Closed.Archived': dispatch => (
-          <div className="bug-row">
-            <div style={{ color: 'gray', fontStyle: 'italic' }}>{props.name}</div>
-            <button onClick={() => dispatch('RESTORE')}>Restore</button>
+            <ArchivableComponent name={props.name} />
             <button onClick={() => dispatch('REOPEN')}>Reopen</button>
           </div>
         ),

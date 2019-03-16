@@ -1,6 +1,7 @@
 import { DefineTemplate, Machine } from '../../../src/core/Machine';
 
-export type BugState = 'Open' | 'Closed.Unarchived' | 'Closed.Archived';
+export type BugState = 'Open' | 'Closed';
+export type ArchivableState = 'Unarchived' | 'Archived';
 
 export type BugTemplate = DefineTemplate<
   BugState,
@@ -11,16 +12,26 @@ export type BugTemplate = DefineTemplate<
       };
       model: null;
     };
-    'Closed.Unarchived': {
+    Closed: {
       transitionPayloads: {
         REOPEN: null;
+      };
+      model: null;
+    };
+  }
+>;
+
+export type ArchivableTemplate = DefineTemplate<
+  ArchivableState,
+  {
+    Unarchived: {
+      transitionPayloads: {
         ARCHIVE: null;
       };
       model: null;
     };
-    'Closed.Archived': {
+    Archived: {
       transitionPayloads: {
-        REOPEN: null;
         RESTORE: null;
       };
       model: null;
@@ -29,6 +40,7 @@ export type BugTemplate = DefineTemplate<
 >;
 
 export type BugMachine = Machine<BugState, BugTemplate>;
+export type ArchivableMachine = Machine<ArchivableState, ArchivableTemplate>;
 
 export const bugMachine: BugMachine = {
   current: 'Open',
@@ -36,21 +48,31 @@ export const bugMachine: BugMachine = {
     Open: {
       model: null,
       transitions: {
-        RESOLVE: () => ['Closed.Unarchived', null],
+        RESOLVE: () => ['Closed', null],
       },
     },
-    'Closed.Unarchived': {
+    Closed: {
       model: null,
       transitions: {
         REOPEN: () => ['Open', null],
-        ARCHIVE: () => ['Closed.Archived', null],
       },
     },
-    'Closed.Archived': {
+  },
+};
+
+export const archivableMachime: ArchivableMachine = {
+  current: 'Unarchived',
+  graph: {
+    Unarchived: {
       model: null,
       transitions: {
-        REOPEN: () => ['Open', null],
-        RESTORE: () => ['Closed.Unarchived', null],
+        ARCHIVE: () => ['Archived', null],
+      },
+    },
+    Archived: {
+      model: null,
+      transitions: {
+        RESTORE: () => ['Unarchived', null],
       },
     },
   },
