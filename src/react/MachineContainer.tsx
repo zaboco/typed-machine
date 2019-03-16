@@ -1,8 +1,12 @@
 import * as React from 'react';
 import { currentView, GraphTemplate, Machine, View, Views } from '../core/Machine';
 
-export type ReactViews<S extends string, GT extends GraphTemplate<S>> = Views<JSX.Element, S, GT>;
-export type ReactView<S extends string, GT extends GraphTemplate<S>> = View<JSX.Element, S, GT>;
+export type ReactViews<S extends string, GT extends GraphTemplate<S>> = Views<
+  React.ReactNode,
+  S,
+  GT
+>;
+export type ReactView<S extends string, GT extends GraphTemplate<S>> = View<React.ReactNode, S, GT>;
 
 export type MachineContainerProps<S extends string, GT extends GraphTemplate<S>> = {
   machine: Machine<S, GT>;

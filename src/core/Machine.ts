@@ -4,7 +4,7 @@ import {
   Dispatch,
   MessageHandlers,
   MessagePayloads,
-  Model,
+  ModelShape,
 } from '../types/Messages';
 
 export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
@@ -54,7 +54,7 @@ type MachineNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
   transitions: MessageHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
 };
 
-type GetModel<NT extends NodeTemplate> = Assert<Model, Second<NT['stateModel']>>;
+type GetModel<NT extends NodeTemplate> = Assert<ModelShape, Second<NT['stateModel']>>;
 
 // === Templates ===
 export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> = Assert<
@@ -70,7 +70,7 @@ export type DefineTemplate<S extends string, TD extends TemplateDefinition<S>> =
 type TemplateDefinition<S extends string> = {
   [s in S]: {
     transitionPayloads: MessagePayloads;
-    model: Model;
+    model: ModelShape;
   }
 };
 
@@ -78,7 +78,7 @@ export type GraphTemplate<S extends string> = { [s in S]: NodeTemplate<s> };
 
 type NodeTemplate<S extends string = string> = {
   transitionPayloads: MessagePayloads;
-  stateModel: [S, Model];
+  stateModel: [S, ModelShape];
 };
 
 // === Type Helpers ===
@@ -101,7 +101,7 @@ type MachineShape = {
   current: string;
   graph: {
     [s: string]: {
-      model: Model;
+      model: ModelShape;
       transitions: {
         [mt: string]: (model: any, payload: any) => [string, any];
       };
