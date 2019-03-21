@@ -5,6 +5,7 @@ import { EditableItem } from './EditableItem';
 import '../shared/index.css';
 import { BugComponent } from './nested/BugComponent';
 import { EditableList } from './list/EditableList';
+import { AsyncCounter } from './async/AsyncCounter';
 
 type AppState = {
   items: string[];
@@ -18,6 +19,8 @@ class App extends React.Component<{}, AppState> {
   render() {
     return (
       <div className="app">
+        <h1 className="title">Async Counter</h1>
+        <AsyncCounter />
         <h1 className="title">Bug</h1>
         <BugComponent name="Typed-machine fails" />
         <h1 className="title">Editable Item</h1>
