@@ -3,8 +3,8 @@ import { MachineContainer, ReactView } from '../../../src/react';
 import {
   EditableMachineOptions,
   EditableTemplate,
-  Msg,
   makeEditableMachine,
+  Msg,
 } from './DeletableMachine';
 import '../../shared/EditableItem.css';
 

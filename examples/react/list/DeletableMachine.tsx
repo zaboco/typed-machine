@@ -22,7 +22,7 @@ export type EditableTemplate = DefineTemplate<
     Editing: {
       transitionPayloads: {
         [Msg.CHANGE_TEXT]: string;
-        [Msg.SAVE]: null;
+        [Msg.SAVE]: (s: string) => void;
         [Msg.DISCARD]: null;
       };
       model: { original: string; draft: string };
@@ -30,7 +30,7 @@ export type EditableTemplate = DefineTemplate<
     Empty: {
       transitionPayloads: {
         [Msg.CHANGE_TEXT]: string;
-        [Msg.DELETE]: null;
+        [Msg.DELETE]: () => void;
         [Msg.DISCARD]: null;
       };
       model: { original: string };
@@ -42,47 +42,38 @@ export type EditableTemplate = DefineTemplate<
   }
 >;
 
-type EditableMachine = Machine<EditableState, EditableTemplate>;
+export type EditableMachine = Machine<EditableState, EditableTemplate> & { id: string };
 
 const readonlyTransitions: Transitions<EditableMachine, 'Readonly'> = {
   START_EDITING: value => ['Editing', { draft: value, original: value }],
 };
 
-function makeEditingTransitions(
-  onChange: EditableMachineOptions['onChange'],
-): Transitions<EditableMachine, 'Editing'> {
-  return {
-    SAVE: ({ draft, original }) => {
-      if (draft !== original) {
-        onChange(draft);
-      }
-      return ['Readonly', draft];
-    },
-    DISCARD: ({ original }) => ['Readonly', original],
-    CHANGE_TEXT: ({ original }, newDraft) =>
-      newDraft === '' ? ['Empty', { original }] : ['Editing', { original, draft: newDraft }],
-  };
-}
+const editingTransitions: Transitions<EditableMachine, 'Editing'> = {
+  SAVE: ({ draft, original }, onChange) => {
+    if (draft !== original) {
+      onChange(draft);
+    }
+    return ['Readonly', draft];
+  },
+  DISCARD: ({ original }) => ['Readonly', original],
+  CHANGE_TEXT: ({ original }, newDraft) =>
+    newDraft === '' ? ['Empty', { original }] : ['Editing', { original, draft: newDraft }],
+};
 
-function makeEmptyTransitions(
-  onDelete: EditableMachineOptions['onDelete'],
-): Transitions<EditableMachine, 'Empty'> {
-  return {
-    CHANGE_TEXT: ({ original }, newDraft) =>
-      newDraft === '' ? ['Empty', { original }] : ['Editing', { original, draft: newDraft }],
-    DISCARD: ({ original }) => ['Readonly', original],
-    DELETE: () => {
-      onDelete();
-      return ['Deleted', null];
-    },
-  };
-}
+const emptyTransitions: Transitions<EditableMachine, 'Empty'> = {
+  CHANGE_TEXT: ({ original }, newDraft) =>
+    newDraft === '' ? ['Empty', { original }] : ['Editing', { original, draft: newDraft }],
+  DISCARD: ({ original }) => ['Readonly', original],
+  DELETE: (_, onDelete) => {
+    onDelete();
+    return ['Deleted', null];
+  },
+};
 
-export const makeEditableMachine = ({
-  defaultValue,
-  onChange,
-  onDelete,
-}: EditableMachineOptions): EditableMachine => ({
+export const makeEditableMachine = (defaultValue: string): EditableMachine => ({
+  id: Math.random()
+    .toString(36)
+    .substring(2),
   current: 'Readonly',
   graph: {
     Readonly: {
@@ -91,11 +82,11 @@ export const makeEditableMachine = ({
     },
     Editing: {
       model: { draft: defaultValue, original: defaultValue },
-      transitions: makeEditingTransitions(onChange),
+      transitions: editingTransitions,
     },
     Empty: {
       model: { original: defaultValue },
-      transitions: makeEmptyTransitions(onDelete),
+      transitions: emptyTransitions,
     },
     Deleted: {
       model: null,
@@ -103,9 +94,3 @@ export const makeEditableMachine = ({
     },
   },
 });
-
-export type EditableMachineOptions = {
-  defaultValue: string;
-  onChange: (s: string) => void;
-  onDelete: () => void;
-};

@@ -3,15 +3,8 @@ import * as ReactDom from 'react-dom';
 import { EditableItem } from './EditableItem';
 
 import '../shared/index.css';
-import { DeletableItem } from './list/DeletableItem';
-import { MachineContainer, ReactViews } from '../../src/react';
-import {
-  EditableListMsg,
-  EditableListState,
-  EditableListTemplate,
-  makeEditableListMachine,
-} from './list/EditableListMachine';
 import { BugComponent } from './nested/BugComponent';
+import { EditableList } from './list/EditableList';
 
 type AppState = {
   items: string[];
@@ -41,49 +34,11 @@ class App extends React.Component<{}, AppState> {
 
   private renderList() {
     return (
-      <MachineContainer
-        machine={makeEditableListMachine({
-          onChange: items => {
-            console.log('list has changed:', items);
-          },
-          defaultItems: ['foo', 'bar', 'baz'],
-        })}
-        views={
-          {
-            Editing: (dispatch, items) => {
-              return (
-                <>
-                  <h1 className="title">Deletable Items</h1>
-                  <button
-                    onClick={() => {
-                      dispatch(EditableListMsg.ADD);
-                    }}
-                  >
-                    Add item
-                  </button>
-                  <div>
-                    {items.map((item, index) => {
-                      return (
-                        <DeletableItem
-                          key={`${item}-${index}-${Date.now()}`}
-                          defaultValue={item}
-                          onChange={value => {
-                            dispatch(EditableListMsg.CHANGE, { index, value });
-                          }}
-                          onDelete={() => {
-                            setTimeout(() => {
-                              dispatch(EditableListMsg.DELETE, index);
-                            }, 1000);
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                </>
-              );
-            },
-          } as ReactViews<EditableListState.Editing, EditableListTemplate>
-        }
+      <EditableList
+        onChange={items => {
+          console.log('list has changed:', items);
+        }}
+        defaultItems={['foo', 'bar', 'baz']}
       />
     );
   }
