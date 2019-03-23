@@ -53,6 +53,20 @@ export const asyncCounterMachine: AsyncCounterMachine = {
         SAVE: value => ['Readonly', value],
         REQUEST_INCREMENT: value => ['Loading', value],
       },
+      asyncTransitions: {
+        SAVE: value => ({
+          state: 'Readonly',
+          model: value,
+        }),
+        REQUEST_INCREMENT: value => ({
+          state: 'Loading',
+          model: value,
+          next: {
+            thunk: () => requestIncrement(value, 2000),
+            onSucces: AsyncCounterMsg.INCREMENT_SUCCESS,
+          },
+        }),
+      },
     },
     Loading: {
       model: 0,
@@ -63,3 +77,11 @@ export const asyncCounterMachine: AsyncCounterMachine = {
     },
   },
 };
+
+function requestIncrement(value: number, timeout = 1000): Promise<number> {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(value + 1);
+    }, timeout);
+  });
+}

@@ -25,13 +25,10 @@ export const AsyncCounter = () => {
             <button onClick={() => dispatch(AsyncCounterMsg.SAVE)}>Save</button>
           </div>
         ),
-        Loading: (dispatch, value) => (
+        Loading: dispatch => (
           <div>
-            <span>{value}</span> <span>Loading...</span>{' '}
+            <span>Loading...</span>{' '}
             <button onClick={() => dispatch(AsyncCounterMsg.CANCEL_REQUEST)}>Cancel</button>{' '}
-            <button onClick={() => dispatch(AsyncCounterMsg.INCREMENT_SUCCESS, value + 1)}>
-              Perform increment
-            </button>
           </div>
         ),
       }}

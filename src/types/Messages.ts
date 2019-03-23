@@ -12,4 +12,11 @@ export type DeriveMessage<MP extends MessagePayloads> = Assert<
   MessageShape,
   ValueOf<{ [t in keyof MP]: MP[t] extends null ? [t] : [t, MP[t]] }>
 >;
+
+export type FullDeriveMessage<MP extends MessagePayloads> = Assert<
+  FullMessageShape,
+  ValueOf<{ [t in keyof MP]: [t, MP[t]] }>
+>;
+
 export type MessageShape = [string, unknown] | [string];
+export type FullMessageShape = [string, unknown];
