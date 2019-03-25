@@ -103,6 +103,7 @@ describe('Machine', () => {
     it('silently ignores invalid transition', () => {
       const machine = initMachine('StateA', 0);
       const { dispatch } = machine.currentView(views);
+      // @ts-ignore
       dispatch('GO_TO_A');
 
       const { output } = machine.currentView(views);
