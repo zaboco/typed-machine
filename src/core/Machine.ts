@@ -107,8 +107,8 @@ type NodeTemplate<S extends string> = {
 export type Views<R, S extends string, GT extends GraphTemplate<S>> = { [s in S]: View<R, s, GT> };
 
 export type View<R, S extends string, GT extends GraphTemplate<S>> = (
-  d: Dispatch<Message<S, GT>>,
-  m: GetModel<S, GT[S]>,
+  dispatch: Dispatch<Message<S, GT>>,
+  model: GetModel<S, GT[S]>,
 ) => R;
 
 export type Message<S extends string, GT extends GraphTemplate<S>> = DeriveMessage<

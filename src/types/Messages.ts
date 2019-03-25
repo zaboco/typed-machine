@@ -4,7 +4,7 @@ export type MessagePayloads = Record<string, ModelShape>;
 export type ModelShape = Object | string | number | boolean | null;
 
 export type MessageHandlers<R, M, MP extends MessagePayloads> = {
-  [t in keyof MP]: (m: M, p: MP[t]) => R
+  [t in keyof MP]: (model: M, payload: MP[t]) => R
 };
 
 export type Dispatch<A extends MessageShape> = (...args: A) => void;
