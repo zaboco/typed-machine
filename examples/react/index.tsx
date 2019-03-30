@@ -3,6 +3,7 @@ import * as ReactDom from 'react-dom';
 import { EditableItem } from './EditableItem';
 
 import '../shared/index.css';
+import { createEditableMachineContainer } from '../shared/EditableMachine';
 
 type AppState = {
   items: string[];
@@ -14,15 +15,12 @@ class App extends React.Component<{}, AppState> {
   };
 
   render() {
+    const machine = createEditableMachineContainer('Foo');
     return (
       <div className="app">
         <h1 className="title">Editable Item</h1>
-        <EditableItem
-          defaultValue="Foo"
-          onChange={value => {
-            console.log('Value has changed:', value);
-          }}
-        />
+        <EditableItem machine={machine} />
+        <EditableItem machine={machine} />
       </div>
     );
   }

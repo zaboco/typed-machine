@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cleanup, render, RenderResult } from 'react-testing-library';
 import { EditableItem, EditableItemProps } from './EditableItem';
 import { click, composeSteps, inputHandlerByValue, runSteps } from './__test__helpers__/Steps';
+import { createEditableMachineContainer } from '../shared/EditableMachine';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';
@@ -38,26 +39,10 @@ describe('EditableItem', () => {
       const { getByTestId } = submitValue(newValue)(renderComponent());
       expect(getByTestId('readonly').textContent).toBe(newValue);
     });
-
-    it('calls onChange when updating the value', () => {
-      const onChangeSpy = jest.fn();
-      submitValue(newValue)(renderComponent({ onChange: onChangeSpy }));
-      expect(onChangeSpy).toHaveBeenCalledWith(newValue);
-    });
-
-    it('does not call onChange if the text has not changed', () => {
-      const onChangeSpy = jest.fn();
-      submitValue(defaultValue)(renderComponent({ onChange: onChangeSpy }));
-      expect(onChangeSpy).not.toHaveBeenCalled();
-    });
   });
 });
 
-function renderComponent(customProps: Partial<EditableItemProps> = {}): RenderResult {
-  const defaultProps: EditableItemProps = {
-    defaultValue,
-    onChange: () => {},
-  };
-
-  return render(<EditableItem {...defaultProps} {...customProps} />);
+function renderComponent(): RenderResult {
+  const machine = createEditableMachineContainer(defaultValue);
+  return render(<EditableItem machine={machine} />);
 }

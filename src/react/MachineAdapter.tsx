@@ -16,7 +16,7 @@ export type MachineContainerProps<S extends string, GT extends GraphTemplate<S>>
 export class MachineAdapter<S extends string, GT extends GraphTemplate<S>> extends React.Component<
   MachineContainerProps<S, GT>
 > {
-  private unsubscribeMachine: Unsubscribe = () => {};
+  private unsubscribeMachine: Unsubscribe | undefined;
 
   componentDidMount(): void {
     this.unsubscribeMachine = this.props.machineContainer.subscribe(() => {
@@ -25,7 +25,7 @@ export class MachineAdapter<S extends string, GT extends GraphTemplate<S>> exten
   }
 
   componentWillUnmount(): void {
-    this.unsubscribeMachine();
+    this.unsubscribeMachine!();
   }
 
   render() {
