@@ -7,10 +7,55 @@ import {
   ModelShape,
 } from '../types/Messages';
 
+export interface MachineContainer<S extends string, GT extends GraphTemplate<S>> {
+  view: <R>(views: Views<R, S, GT>) => R;
+  subscribe: Subscribe<S, GT>;
+}
+
+export type Unsubscribe = () => void;
+type Listener<S extends string, GT extends GraphTemplate<S>> = (
+  msg: DeriveMessage<GT[S]['transitionPayloads']>,
+) => void;
+type Subscribe<S extends string, GT extends GraphTemplate<S>> = (
+  listener: Listener<S, GT>,
+) => Unsubscribe;
+
+export function createMachineContainer<S extends string, GT extends GraphTemplate<S>>(
+  initialMachine: Machine<S, GT>,
+): MachineContainer<S, GT> {
+  let machine = initialMachine;
+  let listeners: Listener<S, GT>[] = [];
+
+  const view = <R>(views: Views<R, S, GT>): R => {
+    return currentView(machine, views, (newMachine, msg) => {
+      machine = newMachine;
+      listeners.forEach(listener => {
+        listener(msg);
+      });
+    });
+  };
+
+  const subscribe: Subscribe<S, GT> = newListener => {
+    listeners.push(newListener);
+
+    return () => {
+      listeners = listeners.filter(listener => listener !== newListener);
+    };
+  };
+
+  return {
+    view,
+    subscribe,
+  };
+}
+
 export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
   machine: Machine<S, GT>,
   views: Views<R, S, GT>,
-  onChange: (updatedMachine: Machine<S, GT>) => void,
+  onChange: (
+    updatedMachine: Machine<S, GT>,
+    msg: DeriveMessage<GT[S]['transitionPayloads']>,
+  ) => void,
 ): R {
   const node = machine.graph[machine.current];
 
@@ -20,7 +65,7 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
     // Condition needed only when coming from JS. In TS this code is unreachable.
     // If the transition is invalid, silently ignore it, returning the current machine.
     if (handler === undefined) {
-      onChange(machine);
+      onChange(machine, message);
       return;
     }
 
@@ -34,7 +79,7 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
       }),
     };
 
-    onChange(newMachine);
+    onChange(newMachine, message);
   }, node.model);
 }
 

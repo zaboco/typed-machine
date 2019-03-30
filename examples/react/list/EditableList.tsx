@@ -4,7 +4,7 @@ import {
   EditableListTemplate,
   makeEditableListMachine,
 } from './EditableListMachine';
-import { MachineContainer } from '../../../src/react';
+import { MachineAdapter } from '../../../src/react';
 import * as React from 'react';
 import { EditableState, EditableTemplate, Msg } from './DeletableMachine';
 
@@ -14,7 +14,7 @@ export type EditableListProps = {
 };
 
 export const EditableList = (props: EditableListProps) => (
-  <MachineContainer<EditableListState, EditableListTemplate>
+  <MachineAdapter<EditableListState, EditableListTemplate>
     machine={makeEditableListMachine(props.defaultItems)}
     views={{
       Editing: (dispatchUp, itemMachines) => {
@@ -32,7 +32,7 @@ export const EditableList = (props: EditableListProps) => (
               {itemMachines.map((item, index) => {
                 return (
                   <div key={item.id} id={item.id}>
-                    <MachineContainer<EditableState, EditableTemplate>
+                    <MachineAdapter<EditableState, EditableTemplate>
                       machine={item}
                       views={{
                         Readonly: (dispatch, model) => (

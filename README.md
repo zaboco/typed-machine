@@ -440,7 +440,7 @@ There are two things an adapter must expose:
 type ReactMachine<S extends string, GT extends GraphTemplate<S>> = Machine<JSX.Element, S, GT>
 ```
 
-2. Some sort of "container" for the Machine. In the React Adapter, it's actually called just that: `MachineContainer` and [its implementation](src/react/MachineContainer.tsx) is really simple. The gist of it is the `render` function:
+2. Some sort of "container" for the Machine. In the React Adapter, it's actually called just that: `MachineContainer` and [its implementation](src/react/MachineAdapter.tsx) is really simple. The gist of it is the `render` function:
 ```ts
 render() {
   return currentView(this.state, newMachine => {
@@ -464,7 +464,7 @@ There are still a lot of features to add, in order to make this library producti
 In case you're interested in this project, and you would like to contribute, there are some things to be done.
 
 ### New Adapters
-Right now only the React adapter is provided, but it should be fairly easy to add new ones for other UI libraries such as Vue, Angular, etc. You can read the section about [developing a new adapter](#developing-a-new-adapter) and see [the React implementation](src/react/MachineContainer.tsx) for reference.
+Right now only the React adapter is provided, but it should be fairly easy to add new ones for other UI libraries such as Vue, Angular, etc. You can read the section about [developing a new adapter](#developing-a-new-adapter) and see [the React implementation](src/react/MachineAdapter.tsx) for reference.
 
 ### Other ideas
 If you have other ideas or want to tackle one of the TODOs from above, let's start a discussion. Submit an issue with `[Idea]` of `[Feature]` "tag" and we'll start from there.
