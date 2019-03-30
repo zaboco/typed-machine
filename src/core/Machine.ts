@@ -23,16 +23,30 @@ type Subscribe<S extends string, GT extends GraphTemplate<S>> = (
 export function createMachineContainer<S extends string, GT extends GraphTemplate<S>>(
   initialMachine: Machine<S, GT>,
 ): MachineContainer<S, GT> {
-  let machine = initialMachine;
   let listeners: Listener<S, GT>[] = [];
+  let currentState = initialMachine.current;
+  let models = initialMachine.models;
+  const graph = initialMachine.graph;
 
   const view = <R>(views: Views<R, S, GT>): R => {
-    return currentView(machine, views, (newMachine, msg) => {
-      machine = newMachine;
+    return views[currentState]((...message) => {
+      const transitionHandler = graph[currentState][message[0]];
+
+      // Condition needed only when coming from JS. In TS this code is unreachable.
+      // If the transition is invalid, silently ignore it, returning the current machine.
+      if (transitionHandler === undefined) {
+        return;
+      }
+
+      const [newState, newModel] = transitionHandler(models[currentState], message[1]!);
+
+      currentState = newState as S;
+      models = { ...models, [newState]: newModel };
+
       listeners.forEach(listener => {
-        listener(msg);
+        listener(message);
       });
-    });
+    }, models[currentState]);
   };
 
   const subscribe: Subscribe<S, GT> = newListener => {
@@ -49,37 +63,6 @@ export function createMachineContainer<S extends string, GT extends GraphTemplat
   };
 }
 
-export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
-  machine: Machine<S, GT>,
-  views: Views<R, S, GT>,
-  onChange: (
-    updatedMachine: Machine<S, GT>,
-    msg: DeriveMessage<GT[S]['transitionPayloads']>,
-  ) => void,
-): R {
-  return views[machine.current]((...message) => {
-    const handler = machine.graph[machine.current][message[0]];
-
-    // Condition needed only when coming from JS. In TS this code is unreachable.
-    // If the transition is invalid, silently ignore it, returning the current machine.
-    if (handler === undefined) {
-      onChange(machine, message);
-      return;
-    }
-
-    const [newState, newModel] = handler(machine.models[machine.current], message[1]!);
-    const newMachine: Machine<S, GT> = {
-      current: newState as S,
-      models: Object.assign({}, machine.models, {
-        [newState]: newModel,
-      }),
-      graph: machine.graph,
-    };
-
-    onChange(newMachine, message);
-  }, machine.models[machine.current]);
-}
-
 // === Machine ===
 export type Machine<S extends string, GT extends GraphTemplate<S> = GraphTemplate<S>> = Assert<
   MachineShape,
@@ -91,6 +74,14 @@ export type Machine<S extends string, GT extends GraphTemplate<S> = GraphTemplat
     };
   }
 >;
+
+export type MachineModels<S extends string, GT extends GraphTemplate<S>> = {
+  [s in S]: GetModel<GT[s]>
+};
+
+export type MachineGraph<S extends string, GT extends GraphTemplate<S>> = {
+  [s in S]: MessageHandlers<GT[S]['stateModel'], GetModel<GT[s]>, GT[s]['transitionPayloads']>
+};
 
 type GetModel<NT extends NodeTemplate> = Assert<ModelShape, Second<NT['stateModel']>>;
 
@@ -124,13 +115,15 @@ type NodeTemplate<S extends string = string> = {
 export type Views<R, S extends string, GT extends GraphTemplate<S>> = { [s in S]: View<R, s, GT> };
 
 export type View<R, S extends string, GT extends GraphTemplate<S>> = (
-  d: Dispatch<DeriveMessage<GT[S]['transitionPayloads']>>,
+  d: Dispatch<Message<S, GT>>,
   m: GetModel<GT[S]>,
 ) => R;
 
+export type Message<S extends string, GT extends GraphTemplate<S>> = DeriveMessage<
+  GT[S]['transitionPayloads']
+>;
 export type Transitions<M extends MachineShape, S extends M['current']> = M['graph'][S];
-
-export type Model<M extends MachineShape, S extends M['current']> = M['graph'][S]['model'];
+export type Model<M extends MachineShape, S extends M['current']> = M['models'][S];
 
 type MachineShape = {
   current: string;
