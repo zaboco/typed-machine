@@ -1,4 +1,4 @@
-import { createMachineContainer, DefineTemplate, MachineContainer } from '../../src/core/Machine';
+import { machineFactory, DefineTemplate, MachineContainer } from '../../src/core/Machine';
 
 export type EditableState = 'Readonly' | 'Editing';
 
@@ -31,24 +31,15 @@ export type EditableTemplate = DefineTemplate<
 
 export type EditableMachineContainer = MachineContainer<EditableState, EditableTemplate>;
 
-export function createEditableMachineContainer(defaultValue: string): EditableMachineContainer {
-  return createMachineContainer<EditableState, EditableTemplate>({
-    current: 'Readonly',
-    models: {
-      Readonly: defaultValue,
-      Editing: { draft: '', original: '' },
+export const initEditableMachine = machineFactory<EditableState, EditableTemplate>({
+  Readonly: {
+    START_EDITING: value => ['Editing', { draft: value, original: value }],
+  },
+  Editing: {
+    SAVE: ({ draft }) => {
+      return ['Readonly', draft];
     },
-    graph: {
-      Readonly: {
-        START_EDITING: value => ['Editing', { draft: value, original: value }],
-      },
-      Editing: {
-        SAVE: ({ draft }) => {
-          return ['Readonly', draft];
-        },
-        DISCARD: ({ original }) => ['Readonly', original],
-        CHANGE_TEXT: ({ original }, newDraft) => ['Editing', { original, draft: newDraft }],
-      },
-    },
-  });
-}
+    DISCARD: ({ original }) => ['Readonly', original],
+    CHANGE_TEXT: ({ original }, newDraft) => ['Editing', { original, draft: newDraft }],
+  },
+});

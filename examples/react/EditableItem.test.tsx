@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { cleanup, render, RenderResult } from 'react-testing-library';
-import { EditableItem, EditableItemProps } from './EditableItem';
+import { EditableItem } from './EditableItem';
 import { click, composeSteps, inputHandlerByValue, runSteps } from './__test__helpers__/Steps';
-import { createEditableMachineContainer } from '../shared/EditableMachine';
+import { initEditableMachine } from '../shared/EditableMachine';
 
 const defaultValue = 'Some value';
 const newValue = 'new value';
@@ -43,6 +43,6 @@ describe('EditableItem', () => {
 });
 
 function renderComponent(): RenderResult {
-  const machine = createEditableMachineContainer(defaultValue);
+  const machine = initEditableMachine('Readonly', defaultValue);
   return render(<EditableItem machine={machine} />);
 }

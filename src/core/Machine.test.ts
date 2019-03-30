@@ -1,7 +1,7 @@
 import { DeriveMessage, Dispatch, MessageShape } from '../types/Messages';
-import { createMachineContainer, DefineTemplate, Machine, Views } from './Machine';
+import { machineFactory, DefineTemplate, MachineGraph, Views } from './Machine';
 
-type TestMachine = Machine<TestState, TestTemplate>;
+type TestMachineGraph = MachineGraph<TestState, TestTemplate>;
 
 type TestState = 'StateB' | 'StateA';
 
@@ -28,20 +28,13 @@ type TestTemplate = DefineTemplate<
   }
 >;
 
-const machineInStateA: TestMachine = {
-  current: 'StateA',
-  models: {
-    StateA: 0,
-    StateB: '',
+const machineGraph: TestMachineGraph = {
+  StateA: {
+    GO_TO_B: (model, text) => ['StateB', `payload: ${text} | a-model: ${model}`],
+    ACCUMULATE_IN_A: (model, amount) => ['StateA', model + amount],
   },
-  graph: {
-    StateA: {
-      GO_TO_B: (model, text) => ['StateB', `payload: ${text} | a-model: ${model}`],
-      ACCUMULATE_IN_A: (model, amount) => ['StateA', model + amount],
-    },
-    StateB: {
-      GO_TO_A: () => ['StateA', 0],
-    },
+  StateB: {
+    GO_TO_A: () => ['StateA', 0],
   },
 };
 
@@ -60,51 +53,59 @@ const views: Views<TestView<MessageA> | TestView<MessageB>, TestState, TestTempl
   },
 };
 describe('MachineContainer', () => {
+  const initMachine = machineFactory<TestState, TestTemplate>(machineGraph);
+
   describe('view', () => {
     it('outputs StateA', () => {
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      const { output } = container.view(views);
+      const machine = initMachine('StateA', 0);
+      const { output } = machine.view(views);
       expect(output).toBe('StateA :: 0');
     });
 
+    it('can start from StateB', () => {
+      const machine = initMachine('StateB', 'started');
+      const { output } = machine.view(views);
+      expect(output).toBe('StateB :: started');
+    });
+
     it('can transition from A to itself', () => {
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      const { dispatch } = container.view(views) as TestView<MessageA>;
+      const machine = initMachine('StateA', 0);
+      const { dispatch } = machine.view(views) as TestView<MessageA>;
       dispatch('ACCUMULATE_IN_A', 3);
 
-      const { output } = container.view(views);
+      const { output } = machine.view(views);
 
       expect(output).toBe('StateA :: 3');
     });
 
     it('can transition from A to B', () => {
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      const { dispatch } = container.view(views) as TestView<MessageA>;
+      const machine = initMachine('StateA', 0);
+      const { dispatch } = machine.view(views) as TestView<MessageA>;
       dispatch('GO_TO_B', 'text-from-a');
 
-      const { output } = container.view(views);
+      const { output } = machine.view(views);
 
       expect(output).toBe('StateB :: payload: text-from-a | a-model: 0');
     });
 
     it('can transition from B back to A', () => {
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      const { dispatch } = container.view(views) as TestView<MessageA>;
+      const machine = initMachine('StateA', 0);
+      const { dispatch } = machine.view(views) as TestView<MessageA>;
       dispatch('GO_TO_B', '');
-      const { dispatch: dispatchBack } = container.view(views) as TestView<MessageB>;
+      const { dispatch: dispatchBack } = machine.view(views) as TestView<MessageB>;
       dispatchBack('GO_TO_A');
 
-      const { output } = container.view(views);
+      const { output } = machine.view(views);
 
       expect(output).toBe('StateA :: 0');
     });
 
     it('silently ignores invalid transition', () => {
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      const { dispatch } = container.view(views);
+      const machine = initMachine('StateA', 0);
+      const { dispatch } = machine.view(views);
       dispatch('GO_TO_A');
 
-      const { output } = container.view(views);
+      const { output } = machine.view(views);
 
       expect(output).toBe('StateA :: 0');
     });
@@ -113,10 +114,10 @@ describe('MachineContainer', () => {
   describe('subscribe', () => {
     it('does not notify listener if no transition happened', () => {
       const listenerSpy = jest.fn();
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      container.subscribe(listenerSpy);
+      const machine = initMachine('StateA', 0);
+      machine.subscribe(listenerSpy);
 
-      container.view(views);
+      machine.view(views);
 
       expect(listenerSpy).not.toHaveBeenCalled();
     });
@@ -124,10 +125,10 @@ describe('MachineContainer', () => {
     it('notifies all listeners on transition', () => {
       const listenerSpies = [jest.fn(), jest.fn()];
       const someText = 'some-text';
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
-      listenerSpies.forEach(container.subscribe);
+      const machine = initMachine('StateA', 0);
+      listenerSpies.forEach(machine.subscribe);
 
-      const { dispatch } = container.view(views) as TestView<MessageA>;
+      const { dispatch } = machine.view(views) as TestView<MessageA>;
       dispatch('GO_TO_B', someText);
 
       listenerSpies.forEach(listenerSpy => {
@@ -137,13 +138,13 @@ describe('MachineContainer', () => {
 
     it('notifies listener for each transition', () => {
       const listenerSpy = jest.fn();
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
+      const machine = initMachine('StateA', 0);
 
-      container.subscribe(listenerSpy);
+      machine.subscribe(listenerSpy);
 
-      const { dispatch } = container.view(views) as TestView<MessageA>;
+      const { dispatch } = machine.view(views) as TestView<MessageA>;
       dispatch('GO_TO_B', '');
-      const { dispatch: dispatchBack } = container.view(views) as TestView<MessageB>;
+      const { dispatch: dispatchBack } = machine.view(views) as TestView<MessageB>;
       dispatchBack('GO_TO_A');
 
       expect(listenerSpy).toHaveBeenCalledTimes(2);
@@ -151,12 +152,12 @@ describe('MachineContainer', () => {
 
     it('does not notify listener if unsubscribed', () => {
       const listenerSpy = jest.fn();
-      const container = createMachineContainer<TestState, TestTemplate>(machineInStateA);
+      const machine = initMachine('StateA', 0);
 
-      const unsubscribe = container.subscribe(listenerSpy);
+      const unsubscribe = machine.subscribe(listenerSpy);
       unsubscribe();
 
-      const { dispatch } = container.view(views) as TestView<MessageA>;
+      const { dispatch } = machine.view(views) as TestView<MessageA>;
       dispatch('GO_TO_B', '');
 
       expect(listenerSpy).not.toHaveBeenCalled();
