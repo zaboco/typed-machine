@@ -57,10 +57,8 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
     msg: DeriveMessage<GT[S]['transitionPayloads']>,
   ) => void,
 ): R {
-  const node = machine.graph[machine.current];
-
   return views[machine.current]((...message) => {
-    const handler = node.transitions[message[0]];
+    const handler = machine.graph[machine.current][message[0]];
 
     // Condition needed only when coming from JS. In TS this code is unreachable.
     // If the transition is invalid, silently ignore it, returning the current machine.
@@ -69,18 +67,17 @@ export function currentView<R, S extends string, GT extends GraphTemplate<S>>(
       return;
     }
 
-    const [newState, newModel] = handler(node.model, message[1]!);
-    const newMachine = {
+    const [newState, newModel] = handler(machine.models[machine.current], message[1]!);
+    const newMachine: Machine<S, GT> = {
       current: newState as S,
-      graph: Object.assign({}, machine.graph, {
-        [newState]: Object.assign({}, machine.graph[newState as S], {
-          model: newModel,
-        }),
+      models: Object.assign({}, machine.models, {
+        [newState]: newModel,
       }),
+      graph: machine.graph,
     };
 
     onChange(newMachine, message);
-  }, node.model);
+  }, machine.models[machine.current]);
 }
 
 // === Machine ===
@@ -88,16 +85,12 @@ export type Machine<S extends string, GT extends GraphTemplate<S> = GraphTemplat
   MachineShape,
   {
     current: S;
-    graph: Graph<S, GT>;
+    models: { [s in S]: GetModel<GT[s]> };
+    graph: {
+      [s in S]: MessageHandlers<GT[S]['stateModel'], GetModel<GT[s]>, GT[s]['transitionPayloads']>
+    };
   }
 >;
-
-type Graph<S extends string, GT extends GraphTemplate<S>> = { [s in S]: MachineNode<GT[s], GT[S]> };
-
-type MachineNode<CNT extends NodeTemplate, NT extends NodeTemplate> = {
-  model: GetModel<CNT>;
-  transitions: MessageHandlers<NT['stateModel'], GetModel<CNT>, CNT['transitionPayloads']>;
-};
 
 type GetModel<NT extends NodeTemplate> = Assert<ModelShape, Second<NT['stateModel']>>;
 
@@ -135,21 +128,12 @@ export type View<R, S extends string, GT extends GraphTemplate<S>> = (
   m: GetModel<GT[S]>,
 ) => R;
 
-export type Transitions<
-  M extends MachineShape,
-  S extends M['current']
-> = M['graph'][S]['transitions'];
+export type Transitions<M extends MachineShape, S extends M['current']> = M['graph'][S];
 
 export type Model<M extends MachineShape, S extends M['current']> = M['graph'][S]['model'];
 
 type MachineShape = {
   current: string;
-  graph: {
-    [s: string]: {
-      model: ModelShape;
-      transitions: {
-        [mt: string]: (model: any, payload: any) => [string, any];
-      };
-    };
-  };
+  models: Record<string, ModelShape>;
+  graph: Record<string, Record<string, (model: any, payload: any) => [string, any]>>;
 };

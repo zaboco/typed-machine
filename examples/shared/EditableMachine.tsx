@@ -55,15 +55,13 @@ export const makeEditableMachine = ({
   onChange,
 }: EditableMachineOptions): EditableMachine => ({
   current: 'Readonly',
+  models: {
+    Readonly: defaultValue,
+    Editing: { draft: defaultValue, original: defaultValue },
+  },
   graph: {
-    Readonly: {
-      model: defaultValue,
-      transitions: readonlyTransitions,
-    },
-    Editing: {
-      model: { draft: defaultValue, original: defaultValue },
-      transitions: makeEditingTransitions(onChange),
-    },
+    Readonly: readonlyTransitions,
+    Editing: makeEditingTransitions(onChange),
   },
 });
 

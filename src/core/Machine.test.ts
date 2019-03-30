@@ -30,19 +30,17 @@ type TestTemplate = DefineTemplate<
 
 const machineInStateA: TestMachine = {
   current: 'StateA',
+  models: {
+    StateA: 0,
+    StateB: '',
+  },
   graph: {
     StateA: {
-      model: 0,
-      transitions: {
-        GO_TO_B: (model, text) => ['StateB', `payload: ${text} | a-model: ${model}`],
-        ACCUMULATE_IN_A: (model, amount) => ['StateA', model + amount],
-      },
+      GO_TO_B: (model, text) => ['StateB', `payload: ${text} | a-model: ${model}`],
+      ACCUMULATE_IN_A: (model, amount) => ['StateA', model + amount],
     },
     StateB: {
-      model: '',
-      transitions: {
-        GO_TO_A: () => ['StateA', 0],
-      },
+      GO_TO_A: () => ['StateA', 0],
     },
   },
 };
