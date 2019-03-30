@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { GraphTemplate, MachineContainer, Unsubscribe, View, Views } from '../core/Machine';
+import { GraphTemplate, Machine, Unsubscribe, View, Views } from '../core/Machine';
 
 export type ReactViews<S extends string, GT extends GraphTemplate<S>> = Views<
   React.ReactNode,
@@ -8,18 +8,18 @@ export type ReactViews<S extends string, GT extends GraphTemplate<S>> = Views<
 >;
 export type ReactView<S extends string, GT extends GraphTemplate<S>> = View<React.ReactNode, S, GT>;
 
-export type MachineContainerProps<S extends string, GT extends GraphTemplate<S>> = {
-  machineContainer: MachineContainer<S, GT>;
+export type MachineAdapterProps<S extends string, GT extends GraphTemplate<S>> = {
+  machine: Machine<S, GT>;
   views: ReactViews<S, GT>;
 };
 
 export class MachineAdapter<S extends string, GT extends GraphTemplate<S>> extends React.Component<
-  MachineContainerProps<S, GT>
+  MachineAdapterProps<S, GT>
 > {
   private unsubscribeMachine: Unsubscribe | undefined;
 
   componentDidMount(): void {
-    this.unsubscribeMachine = this.props.machineContainer.subscribe(() => {
+    this.unsubscribeMachine = this.props.machine.subscribe(() => {
       this.forceUpdate();
     });
   }
@@ -29,6 +29,6 @@ export class MachineAdapter<S extends string, GT extends GraphTemplate<S>> exten
   }
 
   render() {
-    return this.props.machineContainer.view(this.props.views);
+    return this.props.machine.currentView(this.props.views);
   }
 }

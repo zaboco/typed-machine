@@ -1,9 +1,9 @@
 import { Assert, ValueOf } from './helpers';
 
-export type MessagePayloads<P = ModelShape, T extends string = string> = { [t in T]: P };
+export type MessagePayloads = Record<string, ModelShape>;
 export type ModelShape = Object | string | number | boolean | null;
 
-export type MessageHandlers<R, M, MP extends MessagePayloads = MessagePayloads> = {
+export type MessageHandlers<R, M, MP extends MessagePayloads> = {
   [t in keyof MP]: (m: M, p: MP[t]) => R
 };
 

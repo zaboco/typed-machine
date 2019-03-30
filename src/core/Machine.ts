@@ -7,16 +7,14 @@ import {
   ModelShape,
 } from '../types/Messages';
 
-export interface MachineContainer<S extends string, GT extends GraphTemplate<S>> {
-  view: <R>(views: Views<R, S, GT>) => R;
+export interface Machine<S extends string, GT extends GraphTemplate<S>> {
+  currentView: <R>(views: Views<R, S, GT>) => R;
   subscribe: Subscribe<S, GT>;
 }
 
 export type Unsubscribe = () => void;
 
-type Listener<S extends string, GT extends GraphTemplate<S>> = (
-  msg: DeriveMessage<GT[S]['transitionPayloads']>,
-) => void;
+type Listener<S extends string, GT extends GraphTemplate<S>> = (msg: Message<S, GT>) => void;
 
 type Subscribe<S extends string, GT extends GraphTemplate<S>> = (
   listener: Listener<S, GT>,
@@ -24,7 +22,7 @@ type Subscribe<S extends string, GT extends GraphTemplate<S>> = (
 
 export function machineFactory<S extends string, GT extends GraphTemplate<S>>(
   graph: MachineGraph<S, GT>,
-): (...initialStateModel: GT[S]['stateModel']) => MachineContainer<S, GT> {
+): (...initialStateModel: GT[S]['stateModel']) => Machine<S, GT> {
   return (initialState, initialModel) => {
     let listeners: Listener<S, GT>[] = [];
     let currentState: S = initialState as S;
@@ -60,13 +58,13 @@ export function machineFactory<S extends string, GT extends GraphTemplate<S>>(
     };
 
     return {
-      view,
+      currentView: view,
       subscribe,
     };
   };
 }
 
-// === Machine ===
+// === Machine Graph ===
 export type MachineGraph<S extends string, GT extends GraphTemplate<S>> = Assert<
   MachineGraphShape,
   {

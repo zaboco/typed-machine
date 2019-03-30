@@ -1,4 +1,4 @@
-import { machineFactory, DefineTemplate, MachineContainer } from '../../src/core/Machine';
+import { machineFactory, DefineTemplate, Machine } from '../../src/core/Machine';
 
 export type EditableState = 'Readonly' | 'Editing';
 
@@ -29,7 +29,7 @@ export type EditableTemplate = DefineTemplate<
   }
 >;
 
-export type EditableMachineContainer = MachineContainer<EditableState, EditableTemplate>;
+export type EditableMachineContainer = Machine<EditableState, EditableTemplate>;
 
 export const initEditableMachine = machineFactory<EditableState, EditableTemplate>({
   Readonly: {
