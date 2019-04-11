@@ -1,7 +1,7 @@
 # Typed Machine
 This library implements a **strict** model of an event-driven **Finite State Machine**. Its strictness is given by the Typescript type definitions, so it is best used in Typescript applications, to benefit from the type restrictions.
 
->__WARNING!__ The project is in early stages, so the API might change frequently.
+>__WARNING!__ This is the `dev` branch. Docs are outdated, will be updated once the API is more stable, and the branch will be merged in master.
 
 <!-- MarkdownTOC levels="1,2,3,4" -->
 
