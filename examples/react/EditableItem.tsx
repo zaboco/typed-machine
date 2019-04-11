@@ -1,11 +1,6 @@
 import * as React from 'react';
-import { MachineContainer, ReactView } from '../../src/react';
-import {
-  EditableMachineOptions,
-  EditableTemplate,
-  Msg,
-  makeEditableMachine,
-} from '../shared/EditableMachine';
+import { MachineAdapter, ReactView } from '../../src/react';
+import { EditableMachineContainer, EditableTemplate, Msg } from '../shared/EditableMachine';
 import '../shared/EditableItem.css';
 
 const readonlyView: ReactView<'Readonly', EditableTemplate> = (dispatch, model) => (
@@ -35,11 +30,13 @@ const editingView: ReactView<'Editing', EditableTemplate> = (dispatch, { draft }
   );
 };
 
-export type EditableItemProps = EditableMachineOptions;
+export type EditableItemProps = {
+  machine: EditableMachineContainer;
+};
 
 export const EditableItem = (props: EditableItemProps) => (
-  <MachineContainer
-    machine={makeEditableMachine(props)}
+  <MachineAdapter
+    machineContainer={props.machine}
     views={{
       Readonly: readonlyView,
       Editing: editingView,

@@ -1,4 +1,4 @@
-import { DefineTemplate, Machine, Transitions } from '../../src/core/Machine';
+import { machineFactory, DefineTemplate, Machine } from '../../src/core/Machine';
 
 export type EditableState = 'Readonly' | 'Editing';
 
@@ -29,45 +29,17 @@ export type EditableTemplate = DefineTemplate<
   }
 >;
 
-type EditableMachine = Machine<EditableState, EditableTemplate>;
+export type EditableMachineContainer = Machine<EditableState, EditableTemplate>;
 
-const readonlyTransitions: Transitions<EditableMachine, 'Readonly'> = {
-  START_EDITING: value => ['Editing', { draft: value, original: value }],
-};
-
-function makeEditingTransitions(
-  onChange: EditableMachineOptions['onChange'],
-): Transitions<EditableMachine, 'Editing'> {
-  return {
-    SAVE: ({ draft, original }) => {
-      if (draft !== original) {
-        onChange(draft);
-      }
+export const initEditableMachine = machineFactory<EditableState, EditableTemplate>({
+  Readonly: {
+    START_EDITING: value => ['Editing', { draft: value, original: value }],
+  },
+  Editing: {
+    SAVE: ({ draft }) => {
       return ['Readonly', draft];
     },
     DISCARD: ({ original }) => ['Readonly', original],
     CHANGE_TEXT: ({ original }, newDraft) => ['Editing', { original, draft: newDraft }],
-  };
-}
-
-export const makeEditableMachine = ({
-  defaultValue,
-  onChange,
-}: EditableMachineOptions): EditableMachine => ({
-  current: 'Readonly',
-  graph: {
-    Readonly: {
-      model: defaultValue,
-      transitions: readonlyTransitions,
-    },
-    Editing: {
-      model: { draft: defaultValue, original: defaultValue },
-      transitions: makeEditingTransitions(onChange),
-    },
   },
 });
-
-export type EditableMachineOptions = {
-  defaultValue: string;
-  onChange: (s: string) => void;
-};

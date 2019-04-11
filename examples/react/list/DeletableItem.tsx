@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MachineContainer, ReactView } from '../../../src/react';
+import { MachineAdapter, ReactView } from '../../../src/react';
 import {
   EditableMachineOptions,
   EditableTemplate,
@@ -66,7 +66,7 @@ const deletedView: ReactView<'Deleted', EditableTemplate> = () => {
 export type EditableItemProps = EditableMachineOptions;
 
 export const DeletableItem = (props: EditableItemProps) => (
-  <MachineContainer
+  <MachineAdapter
     machine={makeEditableMachine(props)}
     views={{
       Readonly: readonlyView,

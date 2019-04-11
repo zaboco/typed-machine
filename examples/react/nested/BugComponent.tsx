@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MachineContainer, ReactViews } from '../../../src/react';
+import { MachineAdapter, ReactViews } from '../../../src/react';
 import {
   ArchivableMachine,
   ArchivableState,
@@ -11,7 +11,7 @@ import {
 import './BugComponent.css';
 
 const ArchivableComponent = (props: { name: string; archivableMachine: ArchivableMachine }) => (
-  <MachineContainer
+  <MachineAdapter
     machine={props.archivableMachine}
     views={
       {
@@ -33,7 +33,7 @@ const ArchivableComponent = (props: { name: string; archivableMachine: Archivabl
 );
 
 export const BugComponent = (props: { name: string }) => (
-  <MachineContainer
+  <MachineAdapter
     machine={bugMachine}
     views={
       {
